@@ -9,7 +9,7 @@ Questions?
 
 <i class="fa-solid fa-envelope"></i> [mitchg\@vt.edu](mailto:mitchg@vt.edu)
 
-<i class="fa-brands fa-github"></i> [github.com/mitcherg10](https://github.com/mitcherg10)
+<i class="fa-brands fa-github"></i> [github.com/mitchg10](https://github.com/mitchg10)
 
 <i class="fa-brands fa-linkedin"></i> [linkedin.com/in/mitchell-gerhardt](https://www.linkedin.com/in/mitchell-gerhardt)
 :::

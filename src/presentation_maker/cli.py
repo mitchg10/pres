@@ -8,6 +8,7 @@ from rich.console import Console
 from rich.table import Table
 
 from presentation_maker import generator
+from presentation_maker import pdf as pdf_module
 from presentation_maker.wizard import run_wizard
 
 app = typer.Typer(
@@ -77,3 +78,27 @@ def open(name: str = typer.Argument(..., help="Presentation slug to open in Find
         err_console.print(f"[bold red]Error:[/bold red] No presentation named '{name}'.")
         raise typer.Exit(code=1)
     subprocess.run(["open", str(pres_path)], check=True)
+
+
+@app.command()
+def pdf(name: str = typer.Argument(..., help="Presentation slug to export as PDF")) -> None:
+    """Export a presentation to PDF using headless Chromium."""
+    pres_path = generator.get_presentations_dir() / name
+    if not pres_path.exists():
+        err_console.print(f"[bold red]Error:[/bold red] No presentation named '{name}'.")
+        raise typer.Exit(code=1)
+    try:
+        output = pdf_module.export_presentation_pdf(name, pres_path)
+        console.print(f"\n[bold green]PDF saved:[/bold green] {output}")
+    except ImportError:
+        err_console.print(
+            "[bold red]Error:[/bold red] playwright is not installed.\n"
+            "Run: [cyan]uv add playwright && playwright install chromium[/cyan]"
+        )
+        raise typer.Exit(code=1)
+    except FileNotFoundError as exc:
+        err_console.print(f"[bold red]Error:[/bold red] {exc}")
+        raise typer.Exit(code=1)
+    except subprocess.CalledProcessError:
+        err_console.print("[bold red]Error:[/bold red] 'quarto render' failed. Check your index.qmd.")
+        raise typer.Exit(code=1)
