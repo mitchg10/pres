@@ -1,0 +1,24 @@
+[project]
+name = "presentation-maker"
+version = "0.1.0"
+description = "CLI wizard for scaffolding Quarto RevealJS presentations"
+requires-python = ">=3.13"
+dependencies = [
+    "jupyter>=1.1.1",
+    "matplotlib>=3.10.8",
+    "plotly>=6.5.2",
+    "typer>=0.12",
+    "rich>=13.0",
+    "questionary>=2.0",
+    "pydantic>=2.0",
+]
+
+[project.scripts]
+pres = "presentation_maker.cli:app"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]

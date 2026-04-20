@@ -1,0 +1,242 @@
+// Shared presentation components — colors sourced from _brand.yml via Quarto brand SCSS variables.
+// Usage: add a fenced div with the class, e.g. ::: {.discussion-box}
+
+/*-- scss:defaults --*/
+
+$presentation-font-size-root: 22px;
+$presentation-font-smaller:   0.7rem;
+$code-block-font-size:        0.7em;
+$code-block-bg:               #f5f5f5;
+
+// Reveal.js theme-level background — lets data-background-color show through on slides
+$body-bg:    #ffffff;
+$body-color: #0f172a;
+
+// Fallback values — overridden by the brand theme when present
+$brand-color-maroon:        #861F41 !default;
+$brand-color-burnt-orange:  #E5751F !default;
+$brand-color-purple:        #642667 !default;
+$brand-color-pink:          #CE0058 !default;
+$brand-color-teal:          #508590 !default;
+$brand-color-turquoise:     #2CD5C4 !default;
+$brand-color-yellow:        #F7EA48 !default;
+$brand-color-impact-orange: #CA4F00 !default;
+$brand-color-hokie-stone:   #75787B !default;
+$brand-primary:             $brand-color-maroon !default;
+$brand-secondary:           $brand-color-burnt-orange !default;
+
+/*-- scss:rules --*/
+
+/* ── Discussion box ─────────────────────────────────────────────────────── */
+.discussion-box {
+  border-left: 5px solid $brand-primary;
+  background: rgba($brand-color-maroon, 0.08);
+  border-radius: 4px;
+  padding: 0.75em 1em;
+  margin-top: 1em;
+  font-size: 1em;
+
+  p { margin: 0; }
+}
+
+/* ── Gotcha / blind-spot box ─────────────────────────────────────────────── */
+.gotcha-box {
+  border-left: 5px solid $brand-secondary;
+  background: rgba($brand-color-burnt-orange, 0.08);
+  border-radius: 4px;
+  padding: 0.75em 1em;
+  margin-bottom: 0.75em;
+  font-size: 1em;
+
+  p { margin: 0.25em 0 0; }
+}
+
+/* ── Card ────────────────────────────────────────────────────────────────── */
+.card {
+  border-left: 4px solid $brand-primary;
+  background: rgba($brand-color-maroon, 0.05);
+  border-radius: 4px;
+  padding: 0.6em 0.9em;
+  margin-bottom: 0.75em;
+  font-size: 1em;
+
+  p { margin: 0.2em 0 0; }
+
+  &.card--maroon        { border-left-color: $brand-color-maroon;        background: rgba($brand-color-maroon, 0.05); }
+  &.card--burnt-orange  { border-left-color: $brand-color-burnt-orange;  background: rgba($brand-color-burnt-orange, 0.05); }
+  &.card--purple        { border-left-color: $brand-color-purple;        background: rgba($brand-color-purple, 0.05); }
+  &.card--pink          { border-left-color: $brand-color-pink;          background: rgba($brand-color-pink, 0.05); }
+  &.card--teal          { border-left-color: $brand-color-teal;          background: rgba($brand-color-teal, 0.05); }
+  &.card--turquoise     { border-left-color: $brand-color-turquoise;     background: rgba($brand-color-turquoise, 0.05); }
+  &.card--yellow        { border-left-color: $brand-color-yellow;        background: rgba($brand-color-yellow, 0.08); }
+  &.card--impact-orange { border-left-color: $brand-color-impact-orange; background: rgba($brand-color-impact-orange, 0.05); }
+  &.card--hokie-stone   { border-left-color: $brand-color-hokie-stone;   background: rgba($brand-color-hokie-stone, 0.05); }
+
+  &.card--filled {
+    border-left: none;
+    border-radius: 10px;
+    background: $brand-primary;
+    color: white;
+
+    &.card--burnt-orange  { background: $brand-color-burnt-orange; }
+    &.card--maroon        { background: $brand-color-maroon; }
+    &.card--purple        { background: $brand-color-purple; }
+    &.card--pink          { background: $brand-color-pink; }
+    &.card--teal          { background: $brand-color-teal; }
+    &.card--turquoise     { background: $brand-color-turquoise; }
+    &.card--yellow        { background: $brand-color-yellow; color: #0f172a; }
+    &.card--impact-orange { background: $brand-color-impact-orange; }
+    &.card--hokie-stone   { background: $brand-color-hokie-stone; }
+  }
+}
+
+/* ── Tables ──────────────────────────────────────────────────────────────── */
+.reveal table {
+  font-size: 0.78em;
+  width: 100%;
+}
+
+.reveal table th {
+  background: rgba($brand-color-maroon, 0.12);
+}
+
+/* ── Slide headings ──────────────────────────────────────────────────────── */
+.reveal h2 {
+  font-family: "Acherus Grotesque", sans-serif;
+  font-weight: 700;
+  line-height: 1.2;
+  color: $brand-primary;
+  margin-bottom: 0.5em;
+}
+
+.reveal h1 {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 24px;
+  font-weight: 400;
+  color: $brand-secondary;
+}
+
+/* ── Bullet list spacing ─────────────────────────────────────────────────── */
+.reveal ul li,
+.reveal ol li {
+  margin-bottom: 0.45em;
+  line-height: 1.5;
+}
+
+/* ── Blockquotes ─────────────────────────────────────────────────────────── */
+.reveal blockquote {
+  border-left: 5px solid $brand-primary;
+  background: rgba($brand-color-maroon, 0.06);
+  padding: 0.6em 1em;
+  font-style: normal;
+  width: 100%;
+}
+
+/* ── Slide logo ──────────────────────────────────────────────────────────── */
+/* When logo-inject.html wraps the logo img in #logo-bar, override Quarto's fixed position on the img */
+.reveal #logo-bar .slide-logo {
+  position: static !important;
+  height: 50px !important;
+  max-height: none !important;
+  width: auto !important;
+}
+
+/* The flex wrapper takes over Quarto's logo positioning */
+#logo-bar {
+  position: fixed !important;
+  bottom: 0 !important;
+  right: 12px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  z-index: 2 !important;
+}
+
+#logo-bar img {
+  height: 50px !important;
+  max-height: none !important;
+  width: auto !important;
+}
+
+/* Fallback for presentations without logo-inject.html */
+.reveal .slide-logo:not(#logo-bar *) {
+  height: 50px !important;
+}
+
+/* ── Footer + slide number on dark-background slides ─────────────────────── */
+.reveal .footer.has-dark-background,
+.reveal .slide-number.has-dark-background {
+  color: #ffffff !important;
+}
+
+/* ── Title slide ─────────────────────────────────────────────────────────── */
+.reveal .slides section.quarto-title-block {
+  padding-top: 2em;
+  text-align: left;
+  background: transparent;
+}
+
+.reveal .slides section.quarto-title-block h1 {
+  font-family: "Acherus Grotesque", sans-serif;
+  font-size: 2.4em;
+  font-weight: 800;
+  line-height: 1.1;
+  margin-bottom: 0.4em;
+  color: #ffffff;
+}
+
+.reveal .slides section.quarto-title-block .subtitle {
+  font-size: 1.3em;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.85);
+  margin-bottom: 1.5em;
+}
+
+.reveal .slides section.quarto-title-block .author,
+.reveal .slides section.quarto-title-block .institute,
+.reveal .slides section.quarto-title-block .date {
+  font-size: 34px;
+  color: #ffffff;
+}
+
+/* ── Section divider slides ──────────────────────────────────────────────── */
+.reveal .slides section[data-background-color] {
+  background: transparent;
+}
+
+.reveal .slides section[data-background-color] h2,
+.reveal .slides section[data-background-color] p,
+.reveal .slides section[data-background-color] li {
+  color: #ffffff;
+}
+
+.reveal .slides section.inverse h2 {
+  color: #ffffff;
+}
+
+/* ── Slide citations ─────────────────────────────────────────────────────── */
+.citation {
+  position: absolute;
+  bottom: 0.5em;
+  left: 0;
+  right: 0;
+  padding: 0 1.2em;
+  font-size: 0.42em;
+  line-height: 1.4;
+  color: rgba($body-color, 0.5);
+
+  p { margin: 0; }
+}
+
+/* ── Left/right column sidebar layout ───────────────────────────────────── */
+.reveal .left-column {
+  width: 25%;
+  float: left;
+  font-size: 18px;
+  color: #777;
+}
+
+.reveal .right-column {
+  width: 72%;
+  float: right;
+}

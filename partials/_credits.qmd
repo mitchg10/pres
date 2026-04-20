@@ -1,0 +1,47 @@
+## IDEEAS Lab Team {.smaller}
+
+:::: {.columns}
+
+::: {.column width="20%"}
+<!-- Add headshot: images/headshots/katz.jpg -->
+
+**Dr. Andrew Katz**\
+Principal Investigator
+:::
+
+::: {.column width="20%"}
+<!-- Add headshot: images/headshots/gerhardt.jpg -->
+
+**Mitch Gerhardt**\
+PhD Student
+:::
+
+::: {.column width="20%"}
+<!-- Add headshot: images/headshots/shiekh.jpg -->
+
+**Kylee Shiekh**\
+PhD Student
+:::
+
+::: {.column width="20%"}
+<!-- Add headshot: images/headshots/chaback.jpg -->
+
+**Benjamin Chaback**\
+PhD Student
+:::
+
+::: {.column width="20%"}
+<!-- Add headshot: images/headshots/li.jpg -->
+
+**Nathan Li**\
+PhD Student
+:::
+
+::::
+
+::: {.smaller}
+*Improving Decisions across Engineering Education Agents and Systems*
+
+<!-- Replace #XXXXXXX with actual grant number. Add NSF logo: ![](../../images/nsf_logo.png){width=60px} -->
+Supported by NSF Award #XXXXXXX
+:::

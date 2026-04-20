@@ -1,0 +1,97 @@
+meta:
+  name: Presentations
+
+color:
+  palette:
+    maroon:        "#861F41"
+    burnt-orange:  "#E5751F"
+    hokie-stone:   "#75787B"
+    white:         "#FFFFFF"
+    black:         "#0f172a"
+    purple:        "#642667"
+    pink:          "#CE0058"
+    yellow:        "#F7EA48"
+    teal:          "#508590"
+    turquoise:     "#2CD5C4"
+    grey:          "#D7D2CB"
+    smoke:         "#E5E1E6"
+    impact-orange: "#CA4F00"
+  foreground: black
+  background: white
+  primary:    maroon
+  secondary:  burnt-orange
+  light:      hokie-stone
+  dark:       maroon
+
+typography:
+  fonts:
+    - family: Acherus Grotesque
+      source: file
+      files:
+        - path: files/AcherusGrotesque/acherus_grotesque_-_thin.otf
+          weight: 100
+          style: normal
+        - path: files/AcherusGrotesque/acherus_grotesque_-_thin_italic.otf
+          weight: 100
+          style: italic
+        - path: files/AcherusGrotesque/acherus_grotesque_-_ultralight.otf
+          weight: 200
+          style: normal
+        - path: files/AcherusGrotesque/acherus_grotesque_-_ultralight_italic.otf
+          weight: 200
+          style: italic
+        - path: files/AcherusGrotesque/acherus_grotesque_-_light.otf
+          weight: 300
+          style: normal
+        - path: files/AcherusGrotesque/acherus_grotesque_-_light_italic.otf
+          weight: 300
+          style: italic
+        - path: files/AcherusGrotesque/acherus_grotesque_-_regular.otf
+          weight: 400
+          style: normal
+        - path: files/AcherusGrotesque/acherus_grotesque_-_regular_italic.otf
+          weight: 400
+          style: italic
+        - path: files/AcherusGrotesque/acherus_grotesque_-_medium.otf
+          weight: 500
+          style: normal
+        - path: files/AcherusGrotesque/acherus_grotesque_-_medium_italic.otf
+          weight: 500
+          style: italic
+        - path: files/AcherusGrotesque/acherus_grotesque_-_bold.otf
+          weight: 700
+          style: normal
+        - path: files/AcherusGrotesque/acherus_grotesque_-_bold_italic.otf
+          weight: 700
+          style: italic
+        - path: files/AcherusGrotesque/acherus_grotesque_-_extrabold.otf
+          weight: 800
+          style: normal
+        - path: files/AcherusGrotesque/acherus_grotesque_-_extrabold_italic.otf
+          weight: 800
+          style: italic
+        - path: files/AcherusGrotesque/acherus_grotesque_-_black.otf
+          weight: 900
+          style: normal
+        - path: files/AcherusGrotesque/acherus_grotesque_-_black_italic.otf
+          weight: 900
+          style: italic
+    - family: Inter
+      source: google
+      weight: [400, 500, 600, 700]
+      style: [normal, italic]
+    - family: JetBrains Mono
+      source: google
+      weight: [400, 500]
+  base:
+    family: Acherus Grotesque
+    size: 1rem
+    line-height: 1.6
+  headings:
+    family: Acherus Grotesque
+    weight: 700
+    line-height: 1.2
+  monospace: JetBrains Mono
+  link:
+    color: primary
+    weight: 500

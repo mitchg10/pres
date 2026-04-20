@@ -1,0 +1,17 @@
+## About the Speaker {.smaller}
+
+:::: {.columns}
+
+::: {.column width="70%"}
+**Name:** Your Name
+**Role:** Your Title
+**Organization:** Your Organization
+
+Brief professional bio or background goes here.
+:::
+
+::: {.column width="30%"}
+<!-- Add headshot: ![](../../images/headshot.jpg) -->
+:::
+
+::::
