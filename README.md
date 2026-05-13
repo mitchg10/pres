@@ -36,8 +36,28 @@ Run any command with `uv run pres <command>`.
 | `uv run pres list` | Shows all presentations you've created |
 | `uv run pres preview <slug>` | Opens a live preview in your browser |
 | `uv run pres open <slug>` | Opens the presentation folder in Finder (macOS) |
+| `uv run pres pdf <slug>` | Prints the presentation as a PDF |
 
 The `<slug>` is the folder name the wizard gives your presentation (e.g. `my-talk`).
+
+---
+
+## What the Wizard Asks
+
+When you run `uv run pres new`, the wizard walks you through these prompts in order:
+
+| Prompt | Description |
+|---|---|
+| **Presentation title** | Required. The main title of your talk. |
+| **Subtitle** | Optional. Press Enter to skip. |
+| **Author name** | Required. Your name as it appears on the title slide. |
+| **Date** | Defaults to today in `YYYY-MM-DD` format. Edit or press Enter to accept. |
+| **Folder name (slug)** | Auto-generated from the title (e.g. `my-talk`). Edit if you want a different folder name. |
+| **Department** | Choose one: Engineering Education (ENGE), Computer Science (CS), or Virginia Tech (VT). Controls the logo and color theme. |
+| **Shared partials** | Multi-select (Space to toggle, Enter to confirm). Options: Intro / About Speaker, Agenda, Credits / Lab Team, Thank You / Q&A. |
+| **Content slide types** | Multi-select. Options: Bullet List, Text with Image, Section Divider, Three Cards, Text with Question. |
+| **Slide count** | For each slide type you selected, how many placeholder slides to generate (1–20). |
+| **Floating section header** | Yes/No. Whether to show a navigation header that highlights the current section. Defaults to No. |
 
 ---
 
