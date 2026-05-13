@@ -32,6 +32,10 @@ def render_quarto_yml(config: PresentationConfig) -> str:
             theme: [default, brand, ../../styles/components.scss]
             logo: "images/ideeas_icon_only_color.png"
             include-after-body: logo-inject.html
+            include-in-header:
+              - text: |
+                  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+                  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
             center-title-slide: false
             height: 1080
             width: 1920
@@ -49,7 +53,7 @@ def render_quarto_yml(config: PresentationConfig) -> str:
 
 def render_logo_inject_html(config: PresentationConfig) -> str:
     dept = config.department.value
-    return dedent(f"""\
+    logo_script = dedent(f"""\
         <script>
         (function () {{
           function init() {{
@@ -87,6 +91,91 @@ def render_logo_inject_html(config: PresentationConfig) -> str:
             document.addEventListener('DOMContentLoaded', attach);
           }} else {{ attach(); }}
         }})();
+        </script>
+    """)
+    if not config.show_section_header:
+        return logo_script
+    return logo_script + _render_section_header_script()
+
+
+def _render_section_header_script() -> str:
+    return dedent("""\
+        <script>
+        (function () {
+          function init() {
+            var revealEl = Reveal.getRevealElement();
+            var allSlides = Reveal.getSlides();
+            var sections = [];
+            allSlides.forEach(function (slide, index) {
+              var hasBg = slide.hasAttribute('data-background-color');
+              var isTitle = slide.classList.contains('quarto-title-block');
+              var isConclusion = slide.classList.contains('conclusion');
+              if (hasBg && !isTitle && !isConclusion) {
+                var h2 = slide.querySelector('h2');
+                sections.push({
+                  name: h2 ? h2.textContent.trim() : ('Section ' + (sections.length + 1)),
+                  slideIndex: index
+                });
+              }
+            });
+            sections.unshift({ name: 'Intro', slideIndex: 1 });
+            var header = document.createElement('div');
+            header.id = 'section-nav-header';
+            header.classList.add('hidden');
+            var nameEls = [];
+            sections.forEach(function (sec, i) {
+              if (i > 0) {
+                var sep = document.createElement('span');
+                sep.className = 'section-sep';
+                sep.textContent = '·';
+                header.appendChild(sep);
+              }
+              var span = document.createElement('span');
+              span.className = 'section-name';
+              span.textContent = sec.name;
+              header.appendChild(span);
+              nameEls.push(span);
+            });
+            revealEl.insertBefore(header, revealEl.firstChild);
+            function getCurrentSectionIdx(slideIndex) {
+              var current = -1;
+              for (var i = 0; i < sections.length; i++) {
+                if (sections[i].slideIndex <= slideIndex) { current = i; }
+                else { break; }
+              }
+              return current;
+            }
+            function sync(slide) {
+              var slideIndex = allSlides.indexOf(slide);
+              if (slide.hasAttribute('data-background-color') || slide.classList.contains('conclusion')) {
+                header.classList.add('hidden');
+                return;
+              }
+              var activeSectionIdx = getCurrentSectionIdx(slideIndex);
+              if (activeSectionIdx === -1) {
+                header.classList.add('hidden');
+                return;
+              }
+              header.classList.remove('hidden');
+              var bg = Reveal.getSlideBackground(slide);
+              var isDark = bg && bg.classList.contains('has-dark-background');
+              header.classList.toggle('dark-bg', !!isDark);
+              nameEls.forEach(function (el, i) {
+                el.classList.toggle('active', i === activeSectionIdx);
+              });
+            }
+            Reveal.on('slidechanged', function (ev) { sync(ev.currentSlide); });
+            sync(Reveal.getCurrentSlide());
+          }
+          function attach() {
+            if (window.Reveal && Reveal.isReady()) { init(); }
+            else if (window.Reveal) { Reveal.on('ready', init); }
+            else { setTimeout(attach, 50); }
+          }
+          if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', attach);
+          } else { attach(); }
+        })();
         </script>
     """)
 

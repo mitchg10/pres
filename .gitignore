@@ -58,3 +58,6 @@ htmlcov/
 # MACOS specific
 .DS_Store
 __MACOSX/
+
+# Claude specific
+.claude/

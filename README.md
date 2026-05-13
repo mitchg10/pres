@@ -70,7 +70,7 @@ Edit files in `partials/` — these are shared sections included across presenta
 | `partials/_intro.qmd` | About the Speaker |
 | `partials/_agenda.qmd` | Agenda |
 | `partials/_credits.qmd` | Lab Team / Credits |
-| `partials/_thank-you.qmd` | Thank You / Q&A |
+| `partials/_thank-you.qmd` | Thank You / Q&A with name (CHANGE) | 
 
 ### Per-presentation settings
 Edit `presentations/<slug>/_quarto.yml` — controls the title, author, theme, logo, and other Quarto settings specific to that presentation.

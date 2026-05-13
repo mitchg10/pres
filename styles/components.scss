@@ -6,10 +6,10 @@
 $presentation-font-size-root: 22px;
 $presentation-font-smaller:   0.7rem;
 $code-block-font-size:        0.7em;
-$code-block-bg:               #f5f5f5;
+$code-block-bg:               #FFF9F9;
 
 // Reveal.js theme-level background — lets data-background-color show through on slides
-$body-bg:    #FFF3F7;
+$body-bg:    #FFF9F9;
 $body-color: #0f172a;
 
 // Fallback values — overridden by the brand theme when present
@@ -249,6 +249,50 @@ $brand-secondary:           $brand-color-burnt-orange !default;
   overflow: hidden;
 
   p { margin: 0; }
+}
+
+/* ── Section navigation header ───────────────────────────────────────────── */
+#section-nav-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 36px;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+
+  &.hidden { opacity: 0; }
+}
+
+#section-nav-header .section-name {
+  font-family: "Acherus Grotesque", sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba($body-color, 0.35);
+  padding: 0 0.6em;
+  transition: color 0.2s ease;
+
+  &.active { color: $brand-primary; }
+}
+
+#section-nav-header .section-sep {
+  font-size: 10px;
+  color: rgba($body-color, 0.25);
+}
+
+#section-nav-header.dark-bg .section-name {
+  color: rgba(255, 255, 255, 0.45);
+  &.active { color: #ffffff; }
+}
+
+#section-nav-header.dark-bg .section-sep {
+  color: rgba(255, 255, 255, 0.3);
 }
 
 /* ── Left/right column sidebar layout ───────────────────────────────────── */

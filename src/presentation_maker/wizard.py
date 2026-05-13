@@ -29,6 +29,7 @@ def run_wizard() -> PresentationConfig:
     department = _prompt_department()
     partials = _prompt_partials()
     slides = _prompt_slides()
+    show_section_header = _prompt_section_header()
     return PresentationConfig(
         title=title,
         subtitle=subtitle,
@@ -38,6 +39,7 @@ def run_wizard() -> PresentationConfig:
         department=department,
         partials=partials,
         slides=slides,
+        show_section_header=show_section_header,
     )
 
 
@@ -128,6 +130,13 @@ def _prompt_slides() -> list[SlideCount]:
     if not selected_types:
         return []
     return [_prompt_slide_count(slide_type) for slide_type in selected_types]
+
+
+def _prompt_section_header() -> bool:
+    return questionary.confirm(
+        "Show a floating section-navigation header?",
+        default=False,
+    ).ask()
 
 
 def _prompt_slide_count(slide_type: SlideType) -> SlideCount:

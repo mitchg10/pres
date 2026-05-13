@@ -43,6 +43,7 @@ class PresentationConfig(BaseModel):
     department: DepartmentType
     partials: list[PartialType]
     slides: list[SlideCount]
+    show_section_header: bool = False
 
     @field_validator("slug")
     @classmethod
