@@ -3,10 +3,10 @@
 
 /*-- scss:defaults --*/
 
-$presentation-font-size-root: 22px;
-$presentation-font-smaller:   0.7rem;
-$code-block-font-size:        0.7em;
-$code-block-bg:               #FFF9F9;
+$presentation-font-size-root: 22px !default;
+$presentation-font-smaller:   0.7rem !default;
+$code-block-font-size:        0.7em !default;
+$code-block-bg:               #FFF9F9 !default;
 
 // Reveal.js theme-level background — lets data-background-color show through on slides
 $body-bg:    #FFF9F9;
@@ -81,6 +81,16 @@ $brand-secondary:           $brand-color-burnt-orange !default;
   &.card--yellow        { border-left-color: $brand-color-yellow;        background: rgba($brand-color-yellow, 0.08); }
   &.card--impact-orange { border-left-color: $brand-color-impact-orange; background: rgba($brand-color-impact-orange, 0.05); }
   &.card--hokie-stone   { border-left-color: $brand-color-hokie-stone;   background: rgba($brand-color-hokie-stone, 0.05); }
+
+  &.card--bottom {
+    position: absolute;
+    bottom: 2.5em;
+    left: 0;
+    right: 0;
+    margin: 0;
+    padding-left: 1.2em;
+    padding-right: 1.2em;
+  }
 
   &.card--filled {
     border-left: none;
@@ -293,6 +303,26 @@ $brand-secondary:           $brand-color-burnt-orange !default;
 
 #section-nav-header.dark-bg .section-sep {
   color: rgba(255, 255, 255, 0.3);
+}
+
+/* ── Circular headshots ──────────────────────────────────────────────────── */
+.credits-col {
+  text-align: center;
+}
+
+.headshot {
+  margin-bottom: 0.5em;
+
+  img {
+    width: 275px;
+    height: 275px;
+    object-fit: cover;
+    object-position: center top;
+    border-radius: 50%;
+    display: block;
+    margin: 0 auto;
+    border: 3px solid rgba($brand-primary, 0.2);
+  }
 }
 
 /* ── Left/right column sidebar layout ───────────────────────────────────── */

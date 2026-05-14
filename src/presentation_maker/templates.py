@@ -12,11 +12,15 @@ from presentation_maker.models import (
 
 _PARTIAL_ORDER = [PartialType.INTRO, PartialType.AGENDA, PartialType.CREDITS, PartialType.THANK_YOU]
 
+_PARTIAL_FILENAMES: dict[PartialType, str] = {
+    PartialType.INTRO: "_intro.qmd",
+    PartialType.AGENDA: "_agenda.qmd",
+    PartialType.CREDITS: "_credits.qmd",
+    PartialType.THANK_YOU: "_thank-you.qmd",
+}
+
 _PARTIAL_PATHS: dict[PartialType, str] = {
-    PartialType.INTRO: "../../partials/_intro.qmd",
-    PartialType.AGENDA: "../../partials/_agenda.qmd",
-    PartialType.CREDITS: "../../partials/_credits.qmd",
-    PartialType.THANK_YOU: "../../partials/_thank-you.qmd",
+    p: f"partials/{name}" for p, name in _PARTIAL_FILENAMES.items()
 }
 
 
@@ -29,7 +33,7 @@ def render_quarto_yml(config: PresentationConfig) -> str:
     return dedent(f"""\
         format:
           revealjs:
-            theme: [default, brand, ../../styles/components.scss]
+            theme: [default, brand, ../../styles/components.scss, styles.scss]
             logo: "images/ideeas_icon_only_color.png"
             include-after-body: logo-inject.html
             include-in-header:

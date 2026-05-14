@@ -14,12 +14,16 @@ MANIFEST
 
 # Virtual environments
 .venv/
+.venv.nosync/
 venv/
 env/
 .env
 
 # uv
 .python-version
+
+# Virtual environments 
+.venv/
 
 # Testing
 .pytest_cache/

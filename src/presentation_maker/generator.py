@@ -4,7 +4,12 @@ import shutil
 from pathlib import Path
 
 from presentation_maker.models import PresentationConfig
-from presentation_maker.templates import render_index_qmd, render_logo_inject_html, render_quarto_yml
+from presentation_maker.templates import (
+    _PARTIAL_FILENAMES,
+    render_index_qmd,
+    render_logo_inject_html,
+    render_quarto_yml,
+)
 
 # Resolved at import time: src/presentation_maker/ -> src/ -> project root
 PROJECT_ROOT = Path(__file__).parent.parent.parent.resolve()
@@ -28,7 +33,9 @@ def scaffold_presentation(config: PresentationConfig) -> Path:
     _write_file(target_dir / "_quarto.yml", render_quarto_yml(config))
     _write_file(target_dir / "index.qmd", render_index_qmd(config))
     _write_file(target_dir / "logo-inject.html", render_logo_inject_html(config))
+    _write_file(target_dir / "styles.scss", "/*-- scss:rules --*/\n")
     _copy_images(target_dir)
+    _copy_partials(config, target_dir)
     return target_dir
 
 
@@ -37,6 +44,17 @@ def _copy_images(target_dir: Path) -> None:
     dst = target_dir / "images"
     if src.exists():
         shutil.copytree(src, dst)
+
+
+def _copy_partials(config: PresentationConfig, target_dir: Path) -> None:
+    partials_src = PROJECT_ROOT / "partials"
+    partials_dst = target_dir / "partials"
+    partials_dst.mkdir(exist_ok=True)
+    for partial_type in config.partials:
+        filename = _PARTIAL_FILENAMES[partial_type]
+        src_file = partials_src / filename
+        if src_file.exists():
+            shutil.copy2(src_file, partials_dst / filename)
 
 
 def list_presentations() -> list[dict[str, str]]:
