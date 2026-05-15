@@ -272,37 +272,59 @@ $brand-secondary:           $brand-color-burnt-orange !default;
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 6px;
   pointer-events: none;
   transition: opacity 0.25s ease;
 
   &.hidden { opacity: 0; }
 }
 
-#section-nav-header .section-name {
-  font-family: "Acherus Grotesque", sans-serif;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: rgba($body-color, 0.35);
-  padding: 0 0.6em;
-  transition: color 0.2s ease;
-
-  &.active { color: $brand-primary; }
-}
-
+/* Separators are redundant when inactive sections render as dots */
 #section-nav-header .section-sep {
-  font-size: 10px;
-  color: rgba($body-color, 0.25);
+  display: none;
 }
 
+/* Inactive: 6 px dot via pseudo-element, text hidden */
+#section-nav-header .section-name {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 7px;
+  height: 7px;
+  padding: 0;
+  font-size: 0;
+  transition: all 0.2s ease;
+
+  &::before {
+    content: '';
+    display: block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: rgba($body-color, 0.3);
+    transition: background 0.2s ease;
+  }
+
+  /* Active: full text, no dot */
+  &.active {
+    font-family: "Acherus Grotesque", sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: $brand-primary;
+    padding: 0 0.8em;
+    width: auto;
+    height: auto;
+
+    &::before { display: none; }
+  }
+}
+
+/* Dark background variants */
 #section-nav-header.dark-bg .section-name {
-  color: rgba(255, 255, 255, 0.45);
-  &.active { color: #ffffff; }
-}
-
-#section-nav-header.dark-bg .section-sep {
-  color: rgba(255, 255, 255, 0.3);
+  &::before { background: rgba(255, 255, 255, 0.4); }
+  &.active  { color: #ffffff; }
 }
 
 /* ── Circular headshots ──────────────────────────────────────────────────── */

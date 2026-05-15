@@ -11,8 +11,18 @@ from presentation_maker.templates import (
     render_quarto_yml,
 )
 
-# Resolved at import time: src/presentation_maker/ -> src/ -> project root
-PROJECT_ROOT = Path(__file__).parent.parent.parent.resolve()
+def _find_project_root() -> Path:
+    current = Path.cwd()
+    while current != current.parent:
+        if (current / "pyproject.toml").exists():
+            return current
+        current = current.parent
+    raise RuntimeError(
+        "Could not find project root. Run 'pres' from within the presentation-maker directory."
+    )
+
+
+PROJECT_ROOT = _find_project_root()
 
 
 def get_presentations_dir() -> Path:

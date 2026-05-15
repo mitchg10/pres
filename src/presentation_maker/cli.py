@@ -2,6 +2,9 @@ from __future__ import annotations
 
 import subprocess
 import sys
+import threading
+import time
+from pathlib import Path
 
 import typer
 from rich.console import Console
@@ -10,6 +13,22 @@ from rich.table import Table
 from presentation_maker import generator
 from presentation_maker import pdf as pdf_module
 from presentation_maker.wizard import run_wizard
+
+def _watch_partials(partials_dir: Path, main_file: Path, stop: threading.Event) -> None:
+    if not partials_dir.exists():
+        return
+    mtimes: dict[Path, float] = {
+        f: f.stat().st_mtime for f in partials_dir.glob("**/*.qmd")
+    }
+    while not stop.is_set():
+        time.sleep(0.5)
+        for qmd in partials_dir.glob("**/*.qmd"):
+            mtime = qmd.stat().st_mtime
+            if mtimes.get(qmd) != mtime:
+                mtimes[qmd] = mtime
+                main_file.touch()
+                break
+
 
 app = typer.Typer(
     name="pres",
@@ -60,11 +79,21 @@ def preview(name: str = typer.Argument(..., help="Presentation slug to preview")
     if not pres_path.exists():
         err_console.print(f"[bold red]Error:[/bold red] No presentation named '{name}'.")
         raise typer.Exit(code=1)
-    subprocess.run(
-        ["quarto", "preview", str(pres_path)],
-        cwd=str(generator.PROJECT_ROOT),
-        check=True,
-    )
+    partials_dir = pres_path.parent / "partials"
+    stop = threading.Event()
+    threading.Thread(
+        target=_watch_partials,
+        args=(partials_dir, pres_path, stop),
+        daemon=True,
+    ).start()
+    try:
+        subprocess.run(
+            ["quarto", "preview", str(pres_path)],
+            cwd=str(generator.PROJECT_ROOT),
+            check=True,
+        )
+    finally:
+        stop.set()
 
 
 @app.command()
