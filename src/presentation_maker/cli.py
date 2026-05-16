@@ -117,7 +117,7 @@ def pdf(name: str = typer.Argument(..., help="Presentation slug to export as PDF
         err_console.print(f"[bold red]Error:[/bold red] No presentation named '{name}'.")
         raise typer.Exit(code=1)
     try:
-        output = pdf_module.export_presentation_pdf(name, pres_path)
+        output = pdf_module.export_presentation_pdf(name, pres_path, generator.PROJECT_ROOT)
         console.print(f"\n[bold green]PDF saved:[/bold green] {output}")
     except ImportError:
         err_console.print(

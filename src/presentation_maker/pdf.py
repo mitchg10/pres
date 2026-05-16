@@ -10,21 +10,25 @@ _LOAD_WAIT_MS = 2_000
 _TIMEOUT_MS = 60_000
 
 
-def export_presentation_pdf(slug: str, pres_dir: Path) -> Path:
+def export_presentation_pdf(slug: str, pres_dir: Path, project_root: Path) -> Path:
     """Render presentation to PDF; returns path of written file."""
-    _ensure_html_rendered(pres_dir)
+    _ensure_html_rendered(pres_dir, project_root)
     output_path = pres_dir / f"{slug}.pdf"
     _export_pdf(pres_dir / "index.html", output_path)
     return output_path
 
 
-def _ensure_html_rendered(pres_dir: Path) -> None:
+def _ensure_html_rendered(pres_dir: Path, project_root: Path) -> None:
     if (pres_dir / "index.html").exists():
         return
     qmd = pres_dir / "index.qmd"
     if not qmd.exists():
         raise FileNotFoundError(f"index.qmd not found in {pres_dir}")
-    subprocess.run(["quarto", "render", str(qmd)], check=True)
+    subprocess.run(
+        ["quarto", "render", str(qmd)],
+        cwd=str(project_root),
+        check=True,
+    )
 
 
 def _export_pdf(html_path: Path, output_path: Path) -> None:
