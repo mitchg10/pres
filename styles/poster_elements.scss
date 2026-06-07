@@ -1,0 +1,288 @@
+/*-- scss:rules --*/
+
+// ── Dividers ──────────────────────────────────────────────────────────────────
+
+.divider-maroon {
+  border: none;
+  border-top: 3px solid #861F41;
+  margin: 0.08in 0;
+}
+
+.divider-orange {
+  border: none;
+  border-top: 3px solid #E5751F;
+  margin: 0.08in 0;
+}
+
+// ── Stat callout ──────────────────────────────────────────────────────────────
+
+.stat-callout {
+  text-align: center;
+  padding: 0.08in 0;
+
+  .stat-number {
+    display: block;
+    font-size: 6rem;
+    font-weight: 700;
+    color: #861F41;
+    line-height: 1;
+  }
+
+  .stat-label {
+    display: block;
+    font-size: 1.6rem;
+    color: #555;
+    margin-top: 0.06in;
+  }
+}
+
+// ── Pull quote ────────────────────────────────────────────────────────────────
+
+.pull-quote {
+  border-left: 4px solid #861F41;
+  padding-left: 0.2in;
+  margin: 0.15in 0;
+  font-style: italic;
+  font-size: 1.8rem;
+  line-height: 1.5;
+  color: #333;
+}
+
+// ── Step list ─────────────────────────────────────────────────────────────────
+
+.step-list {
+  list-style: none;
+  padding-left: 0;
+  counter-reset: step-counter;
+
+  li {
+    counter-increment: step-counter;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.15in;
+    margin-bottom: 0.12in;
+    font-size: 1.5rem;
+
+    &::before {
+      content: counter(step-counter);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 0.42in;
+      height: 0.42in;
+      border-radius: 50%;
+      background: #861F41;
+      color: white;
+      font-size: 1.2rem;
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 0.02in;
+    }
+  }
+}
+
+// ── Highlight bar ─────────────────────────────────────────────────────────────
+
+.highlight-bar {
+  border-left: 6px solid #861F41;
+  padding: 0.06in 0.1in;
+  background: #FAFAFA;
+  margin: 0.06in 0;
+  border-radius: 0 4px 4px 0;
+
+  &--orange {
+    border-left-color: #E5751F;
+  }
+
+  &--purple {
+    border-left-color: #6A2982;
+  }
+
+  &--teal {
+    border-left-color: #00827F;
+  }
+
+  &--filled {
+    border-left: none;
+    border-radius: 6px;
+    background: #861F41;
+    color: white;
+
+    &.highlight-bar--orange  { background: #E5751F; }
+    &.highlight-bar--purple  { background: #6A2982; }
+    &.highlight-bar--teal    { background: #00827F; }
+  }
+}
+
+// ── Decorative shapes ─────────────────────────────────────────────────────────
+
+.shape-circle {
+  display: inline-block;
+  width: 0.5in;
+  height: 0.5in;
+  border-radius: 50%;
+  background: #861F41;
+
+  &.shape--maroon  { background: #861F41; }
+  &.shape--orange  { background: #E5751F; }
+  &.shape--teal    { background: #00827F; }
+  &.shape--purple  { background: #6A2982; }
+}
+
+.shape-rectangle {
+  display: inline-block;
+  width: 0.6in;
+  height: 0.35in;
+  border-radius: 4px;
+  background: #861F41;
+
+  &.shape--maroon  { background: #861F41; }
+  &.shape--orange  { background: #E5751F; }
+  &.shape--teal    { background: #00827F; }
+  &.shape--purple  { background: #6A2982; }
+}
+
+// ── Color band ────────────────────────────────────────────────────────────────
+
+.color-band {
+  width: 100%;
+  height: 0.15in;
+  background: #861F41;
+  margin: 0.06in 0;
+  border-radius: 3px;
+
+  &.shape--maroon  { background: #861F41; }
+  &.shape--orange  { background: #E5751F; }
+  &.shape--teal    { background: #00827F; }
+  &.shape--purple  { background: #6A2982; }
+}
+
+// ── Icon bullet ───────────────────────────────────────────────────────────────
+
+.icon-bullet {
+  list-style: none;
+  padding-left: 0;
+
+  li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.12in;
+    margin-bottom: 0.1in;
+    font-size: 1.5rem;
+
+    i,
+    .fa,
+    .fas,
+    .far,
+    .fab {
+      color: #861F41;
+      font-size: 1.3rem;
+      margin-top: 0.04in;
+      flex-shrink: 0;
+    }
+  }
+}
+
+// ── Figure caption ────────────────────────────────────────────────────────────
+
+.figure-caption-styled {
+  text-align: center;
+  font-style: italic;
+  font-size: 1.2rem;
+  color: #555;
+  border-top: 1px solid #E5E1E6;
+  padding-top: 0.07in;
+  margin-top: 0.1in;
+}
+
+// ── Two-column inner split ────────────────────────────────────────────────────
+
+.two-col-inner {
+  display: flex;
+  gap: 0.12in;
+  align-items: stretch;
+  flex: 1;
+  min-height: 0;
+
+  > * {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+// ── Right panel: workshop (80%) + QR (20%) ───────────────────────────────────
+
+.right-panel {
+  display: flex;
+  flex-direction: column;
+}
+
+.workshop-area {
+  flex: 4;
+  min-height: 0;
+}
+
+.qr-area {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-top: 1.5px solid #E5E1E6;
+  padding-top: 0.1in;
+
+  img {
+    max-width: 1.4in;
+    height: auto;
+  }
+}
+
+// ── Side-by-side image pair ───────────────────────────────────────────────────
+
+.img-pair {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+
+  p {
+    display: flex;
+    flex-direction: column;
+    gap: 0.12in;
+    margin: 0;
+    width: 100%;
+    flex: 1;
+    min-height: 0;
+  }
+
+  img {
+    display: block;
+    width: 100%;
+    flex: 1;
+    min-height: 0;
+    object-fit: cover;
+    object-position: center;
+  }
+}
+
+// ── Badge ─────────────────────────────────────────────────────────────────────
+
+.badge {
+  display: inline-block;
+  padding: 0.05in 0.15in;
+  border-radius: 99px;
+  font-size: 1.2rem;
+  font-weight: 600;
+  background: #861F41;
+  color: white;
+  line-height: 1.4;
+
+  &.badge--orange  { background: #E5751F; }
+  &.badge--teal    { background: #00827F; }
+  &.badge--purple  { background: #6A2982; }
+  &.badge--stone   { background: #75787B; }
+}

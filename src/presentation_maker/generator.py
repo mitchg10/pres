@@ -33,6 +33,14 @@ def presentation_exists(slug: str) -> bool:
     return (get_presentations_dir() / slug).exists()
 
 
+def get_posters_dir() -> Path:
+    return PROJECT_ROOT / "posters"
+
+
+def poster_exists(slug: str) -> bool:
+    return (get_posters_dir() / slug).exists()
+
+
 def scaffold_presentation(config: PresentationConfig) -> Path:
     target_dir = get_presentations_dir() / config.slug
     if target_dir.exists():
