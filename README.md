@@ -35,6 +35,7 @@ Run any command with `uv run pres <command>`.
 | `uv run pres new` | Interactive wizard — creates a new presentation |
 | `uv run pres list` | Shows all presentations you've created |
 | `uv run pres preview <slug>` | Opens a live preview in your browser |
+| `uv run pres preview <slug> --network` | Same, but also viewable on your phone (see below) |
 | `uv run pres open <slug>` | Opens the presentation folder in Finder (macOS) |
 | `uv run pres pdf <slug>` | Prints the presentation as a PDF |
 
@@ -68,6 +69,24 @@ When you run `uv run pres new`, the wizard walks you through these prompts in or
 3. **Preview** — run `uv run pres preview <slug>` to see it live in your browser
 
 Your presentations are saved in the `presentations/` folder.
+
+### Previewing on your phone
+
+Add `--network` (or `-n`) to view the live preview on a phone or tablet:
+
+```bash
+uv run pres preview <slug> --network
+```
+
+The terminal prints a URL like `http://192.168.1.117:4200` along with a QR code — scan it with
+your phone's camera to open the slides. Edits still reload live on the phone as you save.
+
+- Your phone must be on the **same WiFi network** as your laptop.
+- macOS may ask to allow incoming network connections the first time — click **Allow**.
+- While the preview runs, anyone on that WiFi network can view the presentation. Stop it with
+  `Ctrl-C` when you're done.
+- Port 4200 is used by default; if it's busy the next free port is chosen automatically. Pass
+  `--port <number>` to pick your own.
 
 ---
 

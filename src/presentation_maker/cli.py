@@ -11,6 +11,7 @@ from rich.console import Console
 from rich.table import Table
 
 from presentation_maker import generator
+from presentation_maker import network
 from presentation_maker import pdf as pdf_module
 from presentation_maker import poster_generator
 from presentation_maker.poster_wizard import run_poster_wizard
@@ -30,6 +31,35 @@ def _watch_partials(partials_dir: Path, main_file: Path, stop: threading.Event) 
                 mtimes[qmd] = mtime
                 main_file.touch()
                 break
+
+
+def _print_network_banner(port: int) -> None:
+    """Print the LAN URL (and a scannable QR code) for a --network preview."""
+    ip = network.get_lan_ip()
+    if ip is None:
+        err_console.print(
+            "[yellow]Warning:[/yellow] Could not detect a LAN IP address — "
+            "are you connected to WiFi?\n"
+            f"[dim]Serving on port {port} anyway.[/dim]\n"
+        )
+        return
+
+    url = f"http://{ip}:{port}"
+    console.print(f"\n[bold]On your phone (same WiFi):[/bold] [bold cyan]{url}[/bold cyan]\n")
+
+    try:
+        qr = network.render_qr(url)
+    except RuntimeError as exc:
+        err_console.print(f"[yellow]Warning:[/yellow] {exc}")
+        qr = None
+    if qr:
+        print(qr)
+
+    console.print(
+        "\n[dim]Anyone on this WiFi network can view the presentation while the "
+        "preview is running.\nmacOS may ask you to allow incoming connections — "
+        "click Allow.[/dim]\n"
+    )
 
 
 app = typer.Typer(
@@ -83,12 +113,36 @@ def list_presentations() -> None:
 
 
 @app.command()
-def preview(name: str = typer.Argument(..., help="Presentation slug to preview")) -> None:
+def preview(
+    name: str = typer.Argument(..., help="Presentation slug to preview"),
+    network_access: bool = typer.Option(
+        False,
+        "--network",
+        "-n",
+        help="Also serve on the local network so a phone or tablet can view it.",
+    ),
+    port: int = typer.Option(
+        network.DEFAULT_PORT,
+        "--port",
+        help="Port to bind when --network is used.",
+    ),
+) -> None:
     """Preview a presentation with quarto (runs from project root so images resolve)."""
     pres_path = generator.get_presentations_dir() / name / "index.qmd"
     if not pres_path.exists():
         err_console.print(f"[bold red]Error:[/bold red] No presentation named '{name}'.")
         raise typer.Exit(code=1)
+
+    cmd = ["quarto", "preview", str(pres_path)]
+    if network_access:
+        try:
+            bound_port = network.find_free_port(port)
+        except RuntimeError as exc:
+            err_console.print(f"[bold red]Error:[/bold red] {exc}")
+            raise typer.Exit(code=1)
+        cmd = [*cmd, "--host", "0.0.0.0", "--port", str(bound_port)]
+        _print_network_banner(bound_port)
+
     partials_dir = pres_path.parent / "partials"
     stop = threading.Event()
     threading.Thread(
@@ -97,11 +151,10 @@ def preview(name: str = typer.Argument(..., help="Presentation slug to preview")
         daemon=True,
     ).start()
     try:
-        subprocess.run(
-            ["quarto", "preview", str(pres_path)],
-            cwd=str(generator.PROJECT_ROOT),
-            check=True,
-        )
+        subprocess.run(cmd, cwd=str(generator.PROJECT_ROOT), check=True)
+    except subprocess.CalledProcessError:
+        err_console.print("[bold red]Error:[/bold red] 'quarto preview' failed.")
+        raise typer.Exit(code=1)
     finally:
         stop.set()
 
