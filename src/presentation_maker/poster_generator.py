@@ -37,7 +37,7 @@ def list_posters() -> list[dict[str, str]]:
             "path": str(child),
         }
         for child in sorted(posters_dir.iterdir())
-        if child.is_dir()
+        if (child / "index.qmd").exists()
     ]
 
 

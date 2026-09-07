@@ -1,0 +1,16 @@
+---
+description: Screenshot Quarto RevealJS slides to see how a change renders
+globs: ["presentations/**", "posters/**", "partials/**", "styles/**", "_brand.yml"]
+alwaysApply: false
+---
+
+Slides are HTML rendered in a browser — reading the `.qmd` source does not tell you whether an
+edit worked. After changing a deck, capture it and look at the image:
+
+```bash
+uv run pres shot <slug> --slide <index-or-id>
+```
+
+Then open the PNG it wrote and read `capture-report.md` beside it.
+
+See `AGENTS.md` at the repo root for every flag, what to check in a capture, and the gotchas.

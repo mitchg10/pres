@@ -86,7 +86,7 @@ def list_presentations() -> list[dict[str, str]]:
             "path": str(child),
         }
         for child in sorted(pres_dir.iterdir())
-        if child.is_dir()
+        if (child / "index.qmd").exists()
     ]
 
 

@@ -38,6 +38,8 @@ Run any command with `uv run pres <command>`.
 | `uv run pres preview <slug> --network` | Same, but also viewable on your phone (see below) |
 | `uv run pres open <slug>` | Opens the presentation folder in Finder (macOS) |
 | `uv run pres pdf <slug>` | Prints the presentation as a PDF |
+| `uv run pres shot <slug>` | Screenshots the slides to PNG (see below) |
+| `uv run pres poster shot <slug>` | Screenshots a poster to PNG |
 
 The `<slug>` is the folder name the wizard gives your presentation (e.g. `my-talk`).
 
@@ -87,6 +89,59 @@ your phone's camera to open the slides. Edits still reload live on the phone as 
   `Ctrl-C` when you're done.
 - Port 4200 is used by default; if it's busy the next free port is chosen automatically. Pass
   `--port <number>` to pick your own.
+
+### Screenshotting slides
+
+`pres shot` renders the deck and saves PNGs of the slides, without opening a browser window.
+Useful for checking a change quickly, dropping a slide into an email, or letting an AI coding
+assistant see its own work.
+
+```bash
+uv run pres shot my-talk                     # every slide
+uv run pres shot my-talk --slide 4           # one slide, counting from 0
+uv run pres shot my-talk --slide the-agenda  # one slide, by its heading
+uv run pres shot my-talk --contact-sheet     # plus one grid image of the whole deck
+uv run pres poster shot my-poster            # a poster
+```
+
+Images land in `build/shots/<slug>/`, alongside a `capture-report.md` noting any content that
+overflowed a slide, browser errors, or files that failed to load. The deck is re-rendered
+automatically whenever you have edited it since the last build.
+
+Other options worth knowing:
+
+| Option | What it does |
+|---|---|
+| `--fragments` | One image per reveal step, so you can check the order things appear |
+| `--frames 5 --interval 300` | A burst of images over time, for checking animations |
+| `--width 1920 --height 1080` | Full resolution (the default 1280×720 is smaller but accurate) |
+| `--out <dir>` | Write somewhere other than `build/shots/` |
+
+---
+
+## Working with AI Coding Agents
+
+Slides are HTML rendered in a browser, so an AI assistant editing your `.qmd` file cannot tell
+whether the change looked right. `pres shot` closes that loop: the assistant edits, captures the
+slide, and looks at the image before telling you it's done.
+
+[`AGENTS.md`](AGENTS.md) in this folder explains that workflow to any assistant. It is plain
+Markdown and not tied to a particular tool — Codex, Cursor, and Gemini CLI read it on their own,
+and any other assistant can simply be told to read it first.
+
+Two tools get a small pointer file so they pick it up automatically:
+
+- **Cursor** — `.cursor/rules/preview-slides.mdc`
+- **GitHub Copilot** — `.github/copilot-instructions.md`
+
+**Claude Code** users can install a skill that triggers on its own after a slide edit:
+
+```bash
+cp -R .claude.example/skills .claude/skills
+```
+
+See [`.claude.example/README.md`](.claude.example/README.md) for what else is in there. Your own
+`.claude/` folder is gitignored, so your settings stay local.
 
 ---
 

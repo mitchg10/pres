@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(uv run pres list)",
+      "Bash(uv run pres shot *)",
+      "Bash(uv run pres poster shot *)",
+      "Bash(uv run pres pdf *)",
+      "Bash(uv run pytest *)",
+      "Bash(uv sync *)",
+      "Bash(quarto --version)"
+    ]
+  }
+}

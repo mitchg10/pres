@@ -4,6 +4,7 @@ import subprocess
 import sys
 import threading
 import time
+from collections.abc import Callable
 from pathlib import Path
 
 import typer
@@ -14,6 +15,8 @@ from presentation_maker import generator
 from presentation_maker import network
 from presentation_maker import pdf as pdf_module
 from presentation_maker import poster_generator
+from presentation_maker import screenshot as screenshot_module
+from presentation_maker.capture_models import CaptureOptions, CaptureResult
 from presentation_maker.poster_wizard import run_poster_wizard
 from presentation_maker.wizard import run_wizard
 
@@ -60,6 +63,43 @@ def _print_network_banner(port: int) -> None:
         "preview is running.\nmacOS may ask you to allow incoming connections — "
         "click Allow.[/dim]\n"
     )
+
+
+def _run_capture(capture: Callable[[], CaptureResult]) -> CaptureResult:
+    """Run a capture, turning its failure modes into readable CLI errors."""
+    try:
+        return capture()
+    except ImportError:
+        err_console.print(
+            "[bold red]Error:[/bold red] playwright is not installed.\n"
+            "Run: [cyan]uv add playwright && playwright install chromium[/cyan]"
+        )
+        raise typer.Exit(code=1)
+    except (FileNotFoundError, ValueError, RuntimeError) as exc:
+        err_console.print(f"[bold red]Error:[/bold red] {exc}")
+        raise typer.Exit(code=1)
+    except subprocess.CalledProcessError:
+        err_console.print("[bold red]Error:[/bold red] 'quarto render' failed. Check your index.qmd.")
+        raise typer.Exit(code=1)
+
+
+def _print_capture(result: CaptureResult, *, as_json: bool) -> None:
+    """Report a capture — as JSON for tooling, otherwise for a person to read."""
+    if as_json:
+        print(result.model_dump_json(indent=2))
+        return
+
+    console.print(
+        f"\n[bold green]Captured {len(result.images)} image(s):[/bold green] {result.out_dir}"
+    )
+    for image in result.images:
+        console.print(f"  [dim]{image.name}[/dim]")
+    if result.contact_sheet:
+        console.print(f"[bold]Contact sheet:[/bold] {result.contact_sheet}")
+    if result.report:
+        console.print(f"[bold]Report:[/bold] {result.report}")
+    for warning in (*result.overflow, *result.failed_requests, *result.console_errors):
+        err_console.print(f"[yellow]![/yellow] {warning}")
 
 
 app = typer.Typer(
@@ -196,6 +236,81 @@ def pdf(name: str = typer.Argument(..., help="Presentation slug to export as PDF
         raise typer.Exit(code=1)
 
 
+@app.command()
+def shot(
+    name: str = typer.Argument(..., help="Presentation slug to screenshot"),
+    slides: str = typer.Option(
+        "all",
+        "--slide",
+        "-s",
+        help="all | index (3) | slide id | range (2-5) | comma-separated mix.",
+    ),
+    fragments: bool = typer.Option(
+        False, "--fragments", "-f", help="Capture each fragment reveal step."
+    ),
+    frames: int = typer.Option(
+        0, "--frames", help="Capture N timed frames per slide (for animations)."
+    ),
+    interval: int = typer.Option(
+        400, "--interval", help="Milliseconds between timed frames."
+    ),
+    contact_sheet: bool = typer.Option(
+        False, "--contact-sheet", help="Also write one tiled grid image of every capture."
+    ),
+    out: Path = typer.Option(
+        None, "--out", "-o", help="Output directory [default: build/shots/<slug>]."
+    ),
+    width: int = typer.Option(1280, "--width", help="Viewport width in pixels."),
+    height: int = typer.Option(720, "--height", help="Viewport height in pixels."),
+    scale: float = typer.Option(1.0, "--scale", help="Device scale factor."),
+    wait: int = typer.Option(1200, "--wait", help="Extra settle delay in milliseconds."),
+    render: bool = typer.Option(
+        True, "--render/--no-render", help="Re-render when the build is out of date."
+    ),
+    url: str = typer.Option(
+        None, "--url", help="Capture a running 'pres preview' URL instead of the built file."
+    ),
+    report: bool = typer.Option(
+        True, "--report/--no-report", help="Write capture-report.md alongside the images."
+    ),
+    as_json: bool = typer.Option(False, "--json", help="Print the result as JSON."),
+) -> None:
+    """Screenshot slides to PNG so you can see how a change actually renders."""
+    pres_path = generator.get_presentations_dir() / name
+    if not pres_path.exists():
+        err_console.print(f"[bold red]Error:[/bold red] No presentation named '{name}'.")
+        raise typer.Exit(code=1)
+    if fragments and frames:
+        err_console.print(
+            "[bold red]Error:[/bold red] --fragments and --frames capture different "
+            "things; use one at a time."
+        )
+        raise typer.Exit(code=1)
+
+    options = CaptureOptions(
+        slides=slides,
+        fragments=fragments,
+        frames=frames,
+        interval_ms=interval,
+        contact_sheet=contact_sheet,
+        out_dir=out,
+        width=width,
+        height=height,
+        scale=scale,
+        wait_ms=wait,
+        render=render,
+        url=url,
+        report=report,
+        quiet=as_json,
+    )
+    result = _run_capture(
+        lambda: screenshot_module.capture_presentation(
+            name, pres_path, generator.PROJECT_ROOT, options
+        )
+    )
+    _print_capture(result, as_json=as_json)
+
+
 # ── Poster subcommands ────────────────────────────────────────────────────────
 
 @poster_app.command(name="new")
@@ -246,6 +361,52 @@ def poster_preview(name: str = typer.Argument(..., help="Poster slug to preview"
     except subprocess.CalledProcessError:
         err_console.print("[bold red]Error:[/bold red] 'quarto preview' failed.")
         raise typer.Exit(code=1)
+
+
+@poster_app.command(name="shot")
+def poster_shot(
+    name: str = typer.Argument(..., help="Poster slug to screenshot"),
+    out: Path = typer.Option(
+        None, "--out", "-o", help="Output directory [default: build/shots/<slug>]."
+    ),
+    width: int = typer.Option(
+        1152, "--width", help="Viewport width in pixels (half of 24in at 96dpi)."
+    ),
+    height: int = typer.Option(
+        1728, "--height", help="Viewport height in pixels (half of 36in at 96dpi)."
+    ),
+    scale: float = typer.Option(1.0, "--scale", help="Device scale factor."),
+    wait: int = typer.Option(1200, "--wait", help="Extra settle delay in milliseconds."),
+    render: bool = typer.Option(
+        True, "--render/--no-render", help="Re-render when the build is out of date."
+    ),
+    report: bool = typer.Option(
+        True, "--report/--no-report", help="Write capture-report.md alongside the image."
+    ),
+    as_json: bool = typer.Option(False, "--json", help="Print the result as JSON."),
+) -> None:
+    """Screenshot a poster to PNG so you can see how a change actually renders."""
+    poster_path = generator.get_posters_dir() / name
+    if not poster_path.exists():
+        err_console.print(f"[bold red]Error:[/bold red] No poster named '{name}'.")
+        raise typer.Exit(code=1)
+
+    options = CaptureOptions(
+        out_dir=out,
+        width=width,
+        height=height,
+        scale=scale,
+        wait_ms=wait,
+        render=render,
+        report=report,
+        quiet=as_json,
+    )
+    result = _run_capture(
+        lambda: screenshot_module.capture_poster(
+            name, poster_path, generator.PROJECT_ROOT, options
+        )
+    )
+    _print_capture(result, as_json=as_json)
 
 
 @poster_app.command(name="pdf")
