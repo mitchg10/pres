@@ -11,6 +11,7 @@ import typer
 from rich.console import Console
 from rich.table import Table
 
+from presentation_maker import export as export_module
 from presentation_maker import generator
 from presentation_maker import network
 from presentation_maker import pdf as pdf_module
@@ -234,6 +235,36 @@ def pdf(name: str = typer.Argument(..., help="Presentation slug to export as PDF
     except subprocess.CalledProcessError:
         err_console.print("[bold red]Error:[/bold red] 'quarto render' failed. Check your index.qmd.")
         raise typer.Exit(code=1)
+
+
+@app.command(name="export")
+def export_html(
+    name: str = typer.Argument(..., help="Presentation slug to export"),
+    output: Path = typer.Option(
+        None,
+        "--output",
+        "-o",
+        help="Write here instead of <slug>-standalone.html in the deck directory.",
+    ),
+) -> None:
+    """Export a presentation as one self-contained HTML file (resources embedded)."""
+    pres_path = generator.get_presentations_dir() / name
+    if not pres_path.exists():
+        err_console.print(f"[bold red]Error:[/bold red] No presentation named '{name}'.")
+        raise typer.Exit(code=1)
+    try:
+        written = export_module.export_standalone_html(name, pres_path, output=output)
+    except (FileNotFoundError, FileExistsError, RuntimeError) as exc:
+        err_console.print(f"[bold red]Error:[/bold red] {exc}")
+        raise typer.Exit(code=1)
+
+    size_mb = written.stat().st_size / 1_000_000
+    console.print(f"\n[bold green]Standalone HTML saved:[/bold green] {written}")
+    console.print(f"[dim]{size_mb:.1f} MB — one file, no index_files/ needed.[/dim]")
+    console.print(
+        "[dim]Chalkboard and the speaker-notes window are unavailable in an "
+        "embedded deck.[/dim]"
+    )
 
 
 @app.command()

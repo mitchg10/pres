@@ -65,3 +65,6 @@ __MACOSX/
 
 # Claude specific
 .claude/
+
+# Serena
+.serena/

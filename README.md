@@ -38,6 +38,7 @@ Run any command with `uv run pres <command>`.
 | `uv run pres preview <slug> --network` | Same, but also viewable on your phone (see below) |
 | `uv run pres open <slug>` | Opens the presentation folder in Finder (macOS) |
 | `uv run pres pdf <slug>` | Prints the presentation as a PDF |
+| `uv run pres export <slug>` | Bundles the deck into one shareable HTML file (see below) |
 | `uv run pres shot <slug>` | Screenshots the slides to PNG (see below) |
 | `uv run pres poster shot <slug>` | Screenshots a poster to PNG |
 
@@ -89,6 +90,30 @@ your phone's camera to open the slides. Edits still reload live on the phone as 
   `Ctrl-C` when you're done.
 - Port 4200 is used by default; if it's busy the next free port is chosen automatically. Pass
   `--port <number>` to pick your own.
+
+### Sharing a deck as one file
+
+A normal render leaves you with `index.html` **plus** an `index_files/` folder, and the deck still
+pulls its animation and icon libraries from the internet when it opens. That is awkward to hand to
+someone. `pres export` bundles all of it into a single file:
+
+```bash
+uv run pres export <slug>
+```
+
+This writes `presentations/<slug>/<slug>-standalone.html` — one file you can email, drop on a USB
+stick, or open on a conference-room laptop with no internet at all. Images, fonts, reveal.js, the
+theme, GSAP and Font Awesome are all embedded inside it.
+
+- Expect the file to be **large** (typically 8–30 MB); the command prints the size when it finishes.
+- Exporting **needs internet**, even though viewing the result doesn't — the CDN libraries have to
+  be downloaded in order to be embedded.
+- **Chalkboard and the speaker-notes window (`s`) don't work** in an exported file. Reveal loads
+  both on demand at click time, which is exactly what cannot be embedded ahead of time. Use the
+  normal `index.html` when you need to draw on your slides while presenting.
+- Your normal build is untouched — `index.html` and `index_files/` stay exactly as they were, so
+  `pres preview`, `pres pdf` and `pres shot` keep working as usual.
+- Pass `--output path/to/file.html` to write it somewhere else.
 
 ### Screenshotting slides
 

@@ -42,6 +42,7 @@ Output lands in `build/shots/<slug>/` (gitignored) unless you pass `--out`.
 | `uv run pres poster shot <slug>` | Capture a poster as a single PNG |
 | `uv run pres preview <slug>` | Live browser preview (long-running; for a human) |
 | `uv run pres pdf <slug>` | Export the deck to PDF |
+| `uv run pres export <slug>` | Bundle the deck into one self-contained HTML file |
 
 Useful flags: `--width 1920 --height 1080` when you need to inspect fine detail (the default
 1280×720 is a faithful but cheaper image, since reveal scales the deck); `--out DIR` to keep a
@@ -102,9 +103,17 @@ capture separate; `--no-render` to skip the rebuild; `--json` for machine-readab
   from, including the shared `styles/` and `partials/`. You do not need to run `quarto render`
   yourself, and you should not pass `--no-render` after an edit.
 - **Renders run from the project root** so relative image paths resolve. Do not run
-  `quarto render` from inside a presentation directory.
-- **`index_files/` must sit beside `index.html`** — decks are not self-contained. Do not move or
-  delete it.
+  `quarto render` from inside a presentation directory. The one exception is `pres export`, which
+  must run from the deck directory — pandoc resolves the `index_files/...` resources it is
+  inlining relative to the working directory, and from the project root it silently produces a
+  file with reveal.js missing.
+- **`index_files/` must sit beside `index.html`** — the normal build is not self-contained. Do not
+  move or delete it. When you need a single shareable file, use `pres export` rather than moving
+  anything; it writes a separate `<slug>-standalone.html` and leaves the normal build alone.
+- **`pres export` turns chalkboard off.** Quarto ships chalkboard as a plugin marked
+  `self-contained: false` and refuses to render at all while it is on, so the export writes a
+  temporary `_quarto-pres-embed.yml` profile that disables it. A `-M chalkboard:false` override
+  does *not* work — the deck's own `format.revealjs` block wins over top-level metadata.
 - **`pres preview` never exits.** It is a live server for a person. Use `pres shot` instead; if a
   preview is already running, `--url http://localhost:4200/...` will capture from it.
 - **A plain `--slide` capture shows the slide with every fragment revealed**, so you see all of

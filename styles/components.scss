@@ -245,6 +245,170 @@ $brand-secondary:           $brand-color-burnt-orange !default;
   color: #ffffff;
 }
 
+/* ── Chaos dividers ──────────────────────────────────────────────────────────
+   Opt in with `## Heading {background-color="..." .chaos}`. The color attribute
+   must stay: logo-inject.html keys the section nav and logo swap off it.
+
+   Reveal copies the section's classes onto its generated `.slide-background`
+   element, so every layer below is pure CSS with no JS involved. The four
+   layers ride on that element's two pseudo-elements plus the two on
+   `.slide-background-content`, the child reveal always creates.
+   Motion is continuous drift only — no strobing, which is a projector hazard. */
+@keyframes chaos-churn {
+  0%   { background-position: 0% 0%, 100% 0%, 0% 100%, 100% 100%, 50% 50%, 20% 80%;
+         filter: hue-rotate(0deg) saturate(1.5); }
+  25%  { background-position: 40% 60%, 55% 25%, 90% 10%, 20% 85%, 15% 35%, 70% 55%;
+         filter: hue-rotate(90deg) saturate(1.9); }
+  50%  { background-position: 85% 30%, 10% 75%, 45% 55%, 70% 20%, 90% 80%, 30% 15%;
+         filter: hue-rotate(180deg) saturate(1.5); }
+  75%  { background-position: 25% 90%, 80% 45%, 15% 20%, 95% 60%, 40% 5%, 60% 70%;
+         filter: hue-rotate(270deg) saturate(1.9); }
+  100% { background-position: 0% 0%, 100% 0%, 0% 100%, 100% 100%, 50% 50%, 20% 80%;
+         filter: hue-rotate(360deg) saturate(1.5); }
+}
+
+@keyframes chaos-spin {
+  from { transform: rotate(360deg) scale(1.7); }
+  to   { transform: rotate(0deg) scale(1.7); }
+}
+
+@keyframes chaos-slide {
+  from { transform: translate(0, 0) rotate(-8deg) scale(1.6); }
+  to   { transform: translate(160px, 160px) rotate(-8deg) scale(1.6); }
+}
+
+@keyframes chaos-wobble {
+  0%   { transform: rotate(6deg) scale(1.5) translate(0, 0); }
+  33%  { transform: rotate(-5deg) scale(1.7) translate(-40px, 30px); }
+  66%  { transform: rotate(4deg) scale(1.55) translate(35px, -25px); }
+  100% { transform: rotate(6deg) scale(1.5) translate(0, 0); }
+}
+
+.reveal .backgrounds .slide-background.chaos {
+  overflow: hidden;
+  /* Beats reveal's inline background-color, which stays on the element so the
+     section nav and logo swap keep working */
+  background-color: #FF2D95 !important;
+
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    inset: -25%;
+    pointer-events: none;
+  }
+
+  /* Layer 1 — hard-edged neon discs. No feathering, so the colors clash
+     instead of blending into a tasteful rainbow. */
+  &::before {
+    background-image:
+      radial-gradient(circle at 50% 50%, #FF2D95 0 22%, transparent 23%),
+      radial-gradient(circle at 50% 50%, #00E5FF 0 17%, transparent 18%),
+      radial-gradient(circle at 50% 50%, #C6FF00 0 25%, transparent 26%),
+      radial-gradient(circle at 50% 50%, #FF6D00 0 14%, transparent 15%),
+      radial-gradient(circle at 50% 50%, #B14BFF 0 20%, transparent 21%),
+      radial-gradient(circle at 50% 50%, #FFEA00 0 12%, transparent 13%);
+    background-size: 46% 46%, 62% 62%, 38% 38%, 70% 70%, 52% 52%, 80% 80%;
+    background-repeat: repeat;
+    animation: chaos-churn 7s linear infinite;
+  }
+
+  /* Layer 2 — starburst rays, spinning against the churn */
+  &::after {
+    background: repeating-conic-gradient(
+      from 0deg at 50% 50%,
+      rgba(255, 255, 255, 0.55) 0deg 6deg,
+      rgba(0, 0, 0, 0.28) 6deg 12deg
+    );
+    mix-blend-mode: hard-light;
+    animation: chaos-spin 11s linear infinite;
+  }
+
+  /* Layers 3 and 4 ride on the content child reveal always creates */
+  .slide-background-content {
+    overflow: hidden;
+
+    &::before,
+    &::after {
+      content: '';
+      position: absolute;
+      inset: -40%;
+      pointer-events: none;
+    }
+
+    /* Sliding barber-pole stripes */
+    &::before {
+      background: repeating-linear-gradient(
+        45deg,
+        rgba(255, 234, 0, 0.5) 0 34px,
+        rgba(177, 75, 255, 0.5) 34px 68px,
+        rgba(0, 0, 0, 0) 68px 160px
+      );
+      mix-blend-mode: color-dodge;
+      animation: chaos-slide 1.6s linear infinite;
+    }
+
+    /* Wobbling checkerboard */
+    &::after {
+      background:
+        repeating-linear-gradient(0deg, rgba(0, 229, 255, 0.4) 0 60px, transparent 60px 120px),
+        repeating-linear-gradient(90deg, rgba(255, 45, 149, 0.4) 0 60px, transparent 60px 120px);
+      mix-blend-mode: difference;
+      animation: chaos-wobble 5s ease-in-out infinite;
+    }
+  }
+}
+
+/* Confetti burst — pure enhancement. GSAP owns the motion; if the CDN script
+   never loads, the four CSS layers above are unaffected. */
+.chaos-confetti {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.chaos-particle {
+  position: absolute;
+  top: 0;
+  left: 0;
+  will-change: transform, opacity;
+  /* Ring + shadow so particles stay readable against the background riot */
+  border: 3px solid rgba(0, 0, 0, 0.75);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+
+  &--circ { border-radius: 50%; }
+  &--rect { height: 42% !important; }
+}
+
+/* Straight-faced title: heavy outline so it survives lime and yellow */
+.reveal .slides section.chaos h2 {
+  position: relative;
+  z-index: 3;
+  text-shadow:
+    -4px 0 0 rgba(0, 0, 0, 0.85),
+     4px 0 0 rgba(0, 0, 0, 0.85),
+     0 -4px 0 rgba(0, 0, 0, 0.85),
+     0  4px 0 rgba(0, 0, 0, 0.85),
+    -3px -3px 0 rgba(0, 0, 0, 0.85),
+     3px -3px 0 rgba(0, 0, 0, 0.85),
+    -3px  3px 0 rgba(0, 0, 0, 0.85),
+     3px  3px 0 rgba(0, 0, 0, 0.85),
+     0 10px 28px rgba(0, 0, 0, 0.45);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal .backgrounds .slide-background.chaos::before,
+  .reveal .backgrounds .slide-background.chaos::after,
+  .reveal .backgrounds .slide-background.chaos .slide-background-content::before,
+  .reveal .backgrounds .slide-background.chaos .slide-background-content::after {
+    animation: none;
+  }
+}
+
 /* ── Slide citations ─────────────────────────────────────────────────────── */
 .citation {
   position: absolute;
