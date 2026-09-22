@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import functools
 import shutil
 from pathlib import Path
 
@@ -11,22 +12,52 @@ from presentation_maker.templates import (
     render_quarto_yml,
 )
 
-def _find_project_root() -> Path:
-    current = Path.cwd()
-    while current != current.parent:
-        if (current / "pyproject.toml").exists():
-            return current
-        current = current.parent
-    raise RuntimeError(
-        "Could not find project root. Run 'pres' from within the presentation-maker directory."
-    )
+_ROOT_MARKER = "pyproject.toml"
 
 
-PROJECT_ROOT = _find_project_root()
+def find_project_root(start: Path | None = None) -> Path | None:
+    """Nearest ancestor of `start` (default: cwd) holding pyproject.toml.
+
+    Returns None rather than raising, so callers that merely want to *ask* — a check
+    running against an arbitrary path, a test in tmp_path — do not have to catch.
+    `project_root()` is the variant that insists.
+    """
+    current = (Path.cwd() if start is None else Path(start)).absolute()
+    for candidate in (current, *current.parents):
+        if (candidate / _ROOT_MARKER).exists():
+            return candidate
+    return None
+
+
+@functools.cache
+def project_root() -> Path:
+    """The project root, or a RuntimeError the CLI knows how to render.
+
+    Resolved lazily and once. Resolving at import time instead made the package
+    unimportable from any cwd outside the repo, which is a strange thing for a library
+    to do to the programs that depend on it.
+    """
+    root = find_project_root()
+    if root is None:
+        raise RuntimeError(
+            "Could not find project root. Run 'pres' from within the presentation-maker directory."
+        )
+    return root
+
+
+def __getattr__(name: str) -> object:
+    """Redirect the removed `PROJECT_ROOT` global to its lazy replacement."""
+    if name == "PROJECT_ROOT":
+        raise AttributeError(
+            "generator.PROJECT_ROOT was removed because it resolved at import time. "
+            "Call generator.project_root() instead, or find_project_root(path) to "
+            "resolve against something other than the cwd."
+        )
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 
 def get_presentations_dir() -> Path:
-    return PROJECT_ROOT / "presentations"
+    return project_root() / "presentations"
 
 
 def presentation_exists(slug: str) -> bool:
@@ -34,7 +65,7 @@ def presentation_exists(slug: str) -> bool:
 
 
 def get_posters_dir() -> Path:
-    return PROJECT_ROOT / "posters"
+    return project_root() / "posters"
 
 
 def poster_exists(slug: str) -> bool:
@@ -58,14 +89,14 @@ def scaffold_presentation(config: PresentationConfig) -> Path:
 
 
 def _copy_images(target_dir: Path) -> None:
-    src = PROJECT_ROOT / "images"
+    src = project_root() / "images"
     dst = target_dir / "images"
     if src.exists():
         shutil.copytree(src, dst)
 
 
 def _copy_partials(config: PresentationConfig, target_dir: Path) -> None:
-    partials_src = PROJECT_ROOT / "partials"
+    partials_src = project_root() / "partials"
     partials_dst = target_dir / "partials"
     partials_dst.mkdir(exist_ok=True)
     for partial_type in config.partials:

@@ -1,0 +1,27 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "pres check",
+      "type": "shell",
+      "command": "uv run pres check --format compact",
+      "detail": "Static checks over every deck's .qmd source. No render, no browser.",
+      "group": "test",
+      "presentation": { "reveal": "silent", "panel": "shared", "clear": true },
+      "problemMatcher": {
+        "owner": "pres",
+        "source": "pres check",
+        "fileLocation": "absolute",
+        "pattern": {
+          "regexp": "^(.*):(\\d+):(\\d+):\\s+(error|warning|info)\\s+(\\S+)\\s+(.*)$",
+          "file": 1,
+          "line": 2,
+          "column": 3,
+          "severity": 4,
+          "code": 5,
+          "message": 6
+        }
+      }
+    }
+  ]
+}

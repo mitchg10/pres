@@ -24,11 +24,17 @@ from presentation_maker.capture_report import (
     resize_to_width,
     write_report,
 )
+from presentation_maker.deck.checks import Diagnostic, run_checks
+from presentation_maker.deck.parser import parse_deck
 from presentation_maker.slide_selector import parse_slide_selector
 
-# Reveal's slide transition is 'slide' (see templates.render_quarto_yml); this is
-# long enough for it to finish before the shutter, without padding every capture.
-_TRANSITION_MS = 400
+# Reveal's slide transition and background-transition both run at its default
+# 400ms. Settling for 400ms races them, and a capture that loses the race shows
+# the incoming slide still translated to the right, clipped, and washed with the
+# outgoing slide's background colour — which reads as a layout bug and is not one.
+# measure_overflow() agrees the content fits, because by then it does. Keep this
+# comfortably above 400.
+_TRANSITION_MS = 900
 _FRAGMENT_MS = 250
 _POSTER_NAME = "poster.png"
 
@@ -41,6 +47,7 @@ def capture_presentation(
 ) -> CaptureResult:
     """Screenshot the selected slides of a deck; returns what was written."""
     out_dir = _prepare_out_dir(slug, project_root, options)
+    source_diagnostics = _source_diagnostics(pres_dir)
     url = _resolve_url(pres_dir, project_root, options)
 
     with open_page(
@@ -65,9 +72,26 @@ def capture_presentation(
             console_errors=list(diagnostics.console_errors),
             failed_requests=list(diagnostics.failed_requests),
             overflow=list(overflow),
+            source_diagnostics=list(source_diagnostics),
         ),
         options,
     )
+
+
+def _source_diagnostics(pres_dir: Path) -> tuple[Diagnostic, ...]:
+    """Check the deck's source before rendering it.
+
+    Runs against source only — the build is about to be regenerated, so checks that
+    read `index.html` would be reporting on a file that is already stale. Any failure
+    here is swallowed: a capture that works is worth more than a check that runs.
+    """
+    source = pres_dir / "index.qmd"
+    if not source.is_file():
+        return ()
+    try:
+        return run_checks(parse_deck(source), build_dir=None)
+    except Exception:  # noqa: BLE001 - a broken check must never block a capture
+        return ()
 
 
 def capture_poster(

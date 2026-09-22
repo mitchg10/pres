@@ -11,6 +11,8 @@ import typer
 from rich.console import Console
 from rich.table import Table
 
+from presentation_maker import check_report as check_report_module
+from presentation_maker import check_runner
 from presentation_maker import export as export_module
 from presentation_maker import generator
 from presentation_maker import network
@@ -18,6 +20,8 @@ from presentation_maker import pdf as pdf_module
 from presentation_maker import poster_generator
 from presentation_maker import screenshot as screenshot_module
 from presentation_maker.capture_models import CaptureOptions, CaptureResult
+from presentation_maker.check_models import CheckReport
+from presentation_maker.deck.checks import Severity
 from presentation_maker.poster_wizard import run_poster_wizard
 from presentation_maker.wizard import run_wizard
 
@@ -99,6 +103,11 @@ def _print_capture(result: CaptureResult, *, as_json: bool) -> None:
         console.print(f"[bold]Contact sheet:[/bold] {result.contact_sheet}")
     if result.report:
         console.print(f"[bold]Report:[/bold] {result.report}")
+    for diagnostic in result.source_diagnostics:
+        err_console.print(
+            f"[red]![/red] {diagnostic.rule}: {diagnostic.message} "
+            f"[dim]({diagnostic.file.name}:{diagnostic.line})[/dim]"
+        )
     for warning in (*result.overflow, *result.failed_requests, *result.console_errors):
         err_console.print(f"[yellow]![/yellow] {warning}")
 
@@ -192,12 +201,80 @@ def preview(
         daemon=True,
     ).start()
     try:
-        subprocess.run(cmd, cwd=str(generator.PROJECT_ROOT), check=True)
+        subprocess.run(cmd, cwd=str(generator.project_root()), check=True)
     except subprocess.CalledProcessError:
         err_console.print("[bold red]Error:[/bold red] 'quarto preview' failed.")
         raise typer.Exit(code=1)
     finally:
         stop.set()
+
+
+@app.command()
+def check(
+    names: list[str] = typer.Argument(None, help="Deck slugs to check [default: all]."),
+    as_json: bool = typer.Option(False, "--json", help="Emit the full report as JSON."),
+    output_format: str = typer.Option(
+        "rich", "--format", help="rich | compact | json. compact feeds a problemMatcher."
+    ),
+    rule: list[str] = typer.Option(None, "--rule", help="Only run these rules (repeatable)."),
+    ignore: list[str] = typer.Option(None, "--ignore", help="Skip these rules (repeatable)."),
+    severity: str = typer.Option(
+        "warning", "--severity", help="Minimum severity to report: error | warning | info."
+    ),
+    strict: bool = typer.Option(False, "--strict", help="Let warnings fail the run too."),
+    build: bool = typer.Option(
+        True, "--build/--no-build", help="Also run checks that read the rendered index.html."
+    ),
+) -> None:
+    """Check deck sources without rendering them.
+
+    Exit codes follow ruff and eslint rather than the rest of this CLI: 0 clean,
+    1 problems found, 2 could not run. The distinction is the point — a caller has to
+    be able to tell "your deck has a bug" from "I could not look at your deck".
+    """
+    try:
+        minimum = Severity(severity)
+    except ValueError:
+        err_console.print(
+            f"[bold red]Error:[/bold red] Unknown severity '{severity}'. "
+            "Use error, warning, or info."
+        )
+        raise typer.Exit(code=2)
+
+    try:
+        sources = check_runner.find_decks(generator.get_presentations_dir(), names or [])
+        report = check_runner.check_decks(
+            sources,
+            use_build=build,
+            only=rule or (),
+            ignore=ignore or (),
+            minimum=minimum,
+        )
+    except check_runner.DeckNotFoundError as exc:
+        err_console.print(f"[bold red]Error:[/bold red] {exc}")
+        raise typer.Exit(code=2)
+    except (OSError, RuntimeError, ValueError) as exc:
+        err_console.print(f"[bold red]Error:[/bold red] {exc}")
+        raise typer.Exit(code=2)
+
+    _print_check(report, output_format="json" if as_json else output_format)
+    raise typer.Exit(code=check_runner.exit_code(report, strict=strict))
+
+
+def _print_check(report: CheckReport, *, output_format: str) -> None:
+    """Report a check run — as JSON or compact lines for tooling, else for a person."""
+    if output_format == "json":
+        print(report.model_dump_json(indent=2))
+        return
+    if output_format == "compact":
+        lines = check_report_module.render_compact(report)
+        if lines:
+            print(lines)
+        return
+
+    check_report_module.render_console(report, console)
+    style = "green" if not report.diagnostics else "yellow"
+    console.print(f"[bold {style}]{check_report_module.summarize(report)}[/]")
 
 
 @app.command()
@@ -221,7 +298,7 @@ def pdf(name: str = typer.Argument(..., help="Presentation slug to export as PDF
         err_console.print(f"[bold red]Error:[/bold red] No presentation named '{name}'.")
         raise typer.Exit(code=1)
     try:
-        output = pdf_module.export_presentation_pdf(name, pres_path, generator.PROJECT_ROOT)
+        output = pdf_module.export_presentation_pdf(name, pres_path, generator.project_root())
         console.print(f"\n[bold green]PDF saved:[/bold green] {output}")
     except ImportError:
         err_console.print(
@@ -336,7 +413,7 @@ def shot(
     )
     result = _run_capture(
         lambda: screenshot_module.capture_presentation(
-            name, pres_path, generator.PROJECT_ROOT, options
+            name, pres_path, generator.project_root(), options
         )
     )
     _print_capture(result, as_json=as_json)
@@ -386,7 +463,7 @@ def poster_preview(name: str = typer.Argument(..., help="Poster slug to preview"
     try:
         subprocess.run(
             ["quarto", "preview", str(poster_path)],
-            cwd=str(generator.PROJECT_ROOT),
+            cwd=str(generator.project_root()),
             check=True,
         )
     except subprocess.CalledProcessError:
@@ -434,7 +511,7 @@ def poster_shot(
     )
     result = _run_capture(
         lambda: screenshot_module.capture_poster(
-            name, poster_path, generator.PROJECT_ROOT, options
+            name, poster_path, generator.project_root(), options
         )
     )
     _print_capture(result, as_json=as_json)
@@ -448,7 +525,7 @@ def poster_pdf(name: str = typer.Argument(..., help="Poster slug to export as PD
         err_console.print(f"[bold red]Error:[/bold red] No poster named '{name}'.")
         raise typer.Exit(code=1)
     try:
-        output = pdf_module.export_poster_pdf(name, poster_path, generator.PROJECT_ROOT)
+        output = pdf_module.export_poster_pdf(name, poster_path, generator.project_root())
         console.print(f"\n[bold green]PDF saved:[/bold green] {output}")
     except ImportError:
         err_console.print(

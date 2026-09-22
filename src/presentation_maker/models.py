@@ -8,6 +8,23 @@ from typing import Annotated
 from pydantic import BaseModel, Field, field_validator
 
 
+
+def safe_slug(value: str) -> str:
+    """Return a slug safe to use as a directory name and a URL path segment.
+
+    Collapses every run of non-alphanumeric characters to a single hyphen and
+    trims the ends, so ``"Hello - World"`` becomes ``hello-world`` rather than
+    ``hello---world``. Returns ``""`` when nothing survives; callers that need a
+    non-empty result are responsible for rejecting it.
+
+    This is *not* the rule for slide ids. Pandoc keeps ``.``, ``_`` and
+    non-ASCII letters in a heading id, all of which are unwelcome in a path --
+    use ``deck.identifiers.heading_to_id`` when you need the anchor that
+    ``pres shot --slide <id>`` selects on.
+    """
+    return re.sub(r"[^a-z0-9]+", "-", value.lower()).strip("-")
+
+
 class DepartmentType(str, Enum):
     ENGE = "ENGE"
     CS = "CS"
@@ -48,7 +65,7 @@ class PresentationConfig(BaseModel):
     @field_validator("slug")
     @classmethod
     def slug_must_be_safe(cls, v: str) -> str:
-        cleaned = re.sub(r"[^a-z0-9-]+", "-", v.lower().replace(" ", "-")).strip("-")
+        cleaned = safe_slug(v)
         if not cleaned:
             raise ValueError("Slug cannot be empty after sanitization")
         return cleaned

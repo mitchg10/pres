@@ -29,7 +29,7 @@ def test_capturing_one_slide_writes_a_real_png(deck: tuple[str, Path], tmp_path:
     slug, pres_dir = deck
     options = CaptureOptions(slides="0", out_dir=tmp_path, width=640, height=360)
 
-    result = screenshot.capture_presentation(slug, pres_dir, generator.PROJECT_ROOT, options)
+    result = screenshot.capture_presentation(slug, pres_dir, generator.project_root(), options)
 
     assert len(result.images) == 1
     image = result.images[0]
@@ -42,4 +42,4 @@ def test_an_unknown_slide_id_is_rejected(deck: tuple[str, Path], tmp_path: Path)
     options = CaptureOptions(slides="no-such-slide", out_dir=tmp_path)
 
     with pytest.raises(ValueError, match="No slide with id"):
-        screenshot.capture_presentation(slug, pres_dir, generator.PROJECT_ROOT, options)
+        screenshot.capture_presentation(slug, pres_dir, generator.project_root(), options)

@@ -42,7 +42,7 @@ def list_posters() -> list[dict[str, str]]:
 
 
 def _copy_images(target_dir: Path) -> None:
-    src = generator.PROJECT_ROOT / "images"
+    src = generator.project_root() / "images"
     dst = target_dir / "images"
     if src.exists():
         shutil.copytree(src, dst)

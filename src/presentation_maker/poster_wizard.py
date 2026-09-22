@@ -7,9 +7,8 @@ from rich.console import Console
 from rich.panel import Panel
 
 from presentation_maker import generator
-from presentation_maker.models import DepartmentType
+from presentation_maker.models import DepartmentType, safe_slug
 from presentation_maker.poster_models import PosterConfig, ResearchGroupLogo
-from presentation_maker.templates import slug_from_title
 
 console = Console()
 
@@ -89,7 +88,7 @@ def _prompt_date() -> date:
 
 
 def _prompt_slug(title: str) -> str:
-    default = slug_from_title(title)
+    default = safe_slug(title)
     while True:
         slug = questionary.text("Folder name (slug):", default=default).ask()
         if not generator.poster_exists(slug):

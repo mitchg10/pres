@@ -44,7 +44,10 @@ htmlcov/
 .DS_Store
 
 # IDE
-.vscode/
+.vscode/*
+# ...except the shared check task. Its problemMatcher is what puts `pres check`
+# findings in the Problems panel, where mcp__ide__getDiagnostics can read them.
+!.vscode/tasks.json
 .idea/
 *.swp
 *.swo

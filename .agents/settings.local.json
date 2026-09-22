@@ -1,0 +1,67 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(uv sync *)",
+      "Bash(/Users/mitchellgerhardt/Documents/Projects/presentation-maker/.venv/bin/python -c \"import sys; print\\([p for p in sys.path]\\)\")",
+      "Bash(python -c \"import sys; print\\(sys.path\\)\")",
+      "Bash(/Users/mitchellgerhardt/Documents/Projects/presentation-maker/.venv/bin/python -c \"import inspect, site; print\\(inspect.getsource\\(site.addpackage\\)\\)\")",
+      "Bash(/Users/mitchellgerhardt/Documents/Projects/presentation-maker/.venv/bin/python -c ' *)",
+      "Bash(rm \".venv/lib/python3.13/site-packages/_editable_impl_presentation_maker 2.pth\")",
+      "Bash(.venv/bin/python -c \"import presentation_maker; print\\('OK'\\)\")",
+      "Bash(.venv/bin/python -c \"import sys; print\\('\\\\n'.join\\(sys.path\\)\\)\")",
+      "Bash(.venv/bin/python -c \"import site; print\\(site.ENABLE_USER_SITE\\); print\\(site.getsitepackages\\(\\)\\)\")",
+      "Bash(.venv/bin/python -c ' *)",
+      "Bash(.venv/bin/python -S -c ' *)",
+      "Bash(uv run *)",
+      "Bash(gh repo *)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebSearch",
+      "WebFetch(domain:api.github.com)",
+      "Bash(grep -o '..\\\\{[^}]*\\\\}' /Users/mitchellgerhardt/Documents/Projects/presentation-maker/presentations/inside-the-mental-models/index_files/libs/revealjs/dist/theme/quarto-4fbde4178830e772b7abfc1656e3aead.css)",
+      "Bash(python3 -c ' *)",
+      "Bash(.venv/bin/python -c \"import playwright; print\\('installed'\\)\")",
+      "Bash(python3 -)",
+      "Bash(uv --version)",
+      "Bash(.venv/bin/python3 -c \"import presentation_maker; print\\('OK'\\)\")",
+      "Bash(quarto --version)",
+      "Bash(uv run pres list)",
+      "Bash(uv run pres shot *)",
+      "Bash(uv run pres poster shot *)",
+      "Bash(uv run pres pdf *)",
+      "Bash(uv run pytest *)",
+      "Bash(uv sync *)",
+      "Bash(quarto --version)",
+      "Bash(quarto render *)",
+      "Bash(PYTHONPATH=src .venv/bin/python -m presentation_maker export --help)",
+      "Bash(PYTHONPATH=src .venv/bin/python -m presentation_maker export stem-grad-survey)",
+      "mcp__overleaf__list_projects",
+      "mcp__overleaf__list_files",
+      "mcp__overleaf__search",
+      "mcp__overleaf__read_file",
+      "mcp__overleaf__status_summary",
+      "mcp__overleaf__get_section_content",
+      "mcp__overleaf__render_page",
+      "mcp__overleaf__compile",
+      "mcp__overleaf__sync",
+      "Read(//Users/mitchellgerhardt/Library/Caches/overleaf-mcp/6aadaa04b7d45a7d2278cda0/**)",
+      "Bash(python3 -c \"import fitz; print\\('pymupdf ok'\\)\")",
+      "Bash(pdftotext -bbox-layout -f 2 -l 2 .build/main.pdf -)",
+      "Bash(pdftotext -bbox -f 2 -l 2 .build/main.pdf -)"
+    ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Library/Frameworks/Python.framework/Versions/3.11/bin/headroom wrap selfheal --marker headroom-wrap-selfheal",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}

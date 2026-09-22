@@ -93,6 +93,15 @@ def _render_report(result: CaptureResult) -> str:
         f"Output directory: `{result.out_dir}`",
         "",
         _list_section("Images", [f"`{path.name}`" for path in result.images]),
+        _list_section(
+            "Source checks",
+            [_diagnostic_line(d) for d in result.source_diagnostics],
+            empty="No problems found in the deck source.",
+            note=(
+                "These come from `pres check`, which reads the .qmd rather than the "
+                "render. Run `pres check <slug>` for the full report."
+            ),
+        ),
         _list_section("Content overflow", result.overflow, empty="No content escaped a slide."),
         _list_section(
             "Console errors",
@@ -110,6 +119,17 @@ def _render_report(result: CaptureResult) -> str:
         ),
     ]
     return "\n".join(sections).rstrip() + "\n"
+
+
+def _diagnostic_line(diagnostic) -> str:
+    """One source problem, with the command that shows it."""
+    where = f"`{diagnostic.file.name}:{diagnostic.line}`"
+    parts = [f"**{diagnostic.severity.value}** `{diagnostic.rule}` {where} — {diagnostic.message}"]
+    if diagnostic.slide_id:
+        parts.append(f" Look with `--slide {diagnostic.slide_id}`.")
+    if diagnostic.hint:
+        parts.append(f" {diagnostic.hint}")
+    return "".join(parts)
 
 
 def _list_section(

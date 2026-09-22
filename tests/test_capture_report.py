@@ -81,3 +81,47 @@ def test_resize_leaves_an_already_small_image_alone(tmp_path: Path) -> None:
 
     with Image.open(path) as untouched:
         assert untouched.size == (400, 300)
+
+
+# --- Source checks in the capture report ---------------------------------------
+# AGENTS.md step 4 sends agents to capture-report.md, so a source problem that never
+# reaches this file is a problem nobody reads.
+
+
+def _diagnostic(**overrides):
+    from presentation_maker.deck.checks import Diagnostic, Severity
+
+    fields = {
+        "rule": "slide-id-duplicate",
+        "severity": Severity.ERROR,
+        "message": "Heading 'A' repeats the slide id 'a'.",
+        "file": Path("presentations/demo/index.qmd"),
+        "line": 42,
+        "slide_id": "a-1",
+        "slide_index": 3,
+        "hint": "Give it an explicit id.",
+    }
+    return Diagnostic(**{**fields, **overrides})
+
+
+def _report_text(tmp_path: Path, **overrides) -> str:
+    written = write_report(_result(tmp_path, **overrides), tmp_path / REPORT_NAME)
+    return written.read_text(encoding="utf-8")
+
+
+def test_report_says_so_when_the_source_is_clean(tmp_path: Path) -> None:
+    assert "No problems found in the deck source." in _report_text(tmp_path)
+
+
+def test_report_lists_source_diagnostics_with_the_command_to_see_them(tmp_path: Path) -> None:
+    report = _report_text(tmp_path, source_diagnostics=[_diagnostic()])
+
+    assert "slide-id-duplicate" in report
+    assert "index.qmd:42" in report
+    assert "--slide a-1" in report, "the report should name the next command to run"
+    assert "Give it an explicit id." in report
+
+
+def test_source_diagnostics_count_as_warnings_on_the_result(tmp_path: Path) -> None:
+    assert not _result(tmp_path).has_warnings
+    assert _result(tmp_path, source_diagnostics=[_diagnostic()]).has_warnings

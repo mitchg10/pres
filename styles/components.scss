@@ -51,6 +51,20 @@ $brand-secondary:           $brand-color-burnt-orange !default;
   p { margin: 0.25em 0 0; }
 }
 
+/* ── Miro embed ──────────────────────────────────────────────────────────── */
+.miro-embed {
+  border-radius: 4px;
+  overflow: hidden;
+  line-height: 0; // avoid inline-iframe baseline gap
+
+  iframe {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+  }
+}
+
 /* ── Card ────────────────────────────────────────────────────────────────── */
 .card {
   border-left: 4px solid $brand-primary;

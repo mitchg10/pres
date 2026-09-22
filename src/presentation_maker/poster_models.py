@@ -7,7 +7,7 @@ from typing import Annotated
 
 from pydantic import BaseModel, Field, field_validator
 
-from presentation_maker.models import DepartmentType
+from presentation_maker.models import DepartmentType, safe_slug
 
 
 class ResearchGroupLogo(str, Enum):
@@ -35,7 +35,7 @@ class PosterConfig(BaseModel):
     @field_validator("slug")
     @classmethod
     def slug_must_be_safe(cls, v: str) -> str:
-        cleaned = re.sub(r"[^a-z0-9-]+", "-", v.lower().replace(" ", "-")).strip("-")
+        cleaned = safe_slug(v)
         if not cleaned:
             raise ValueError("Slug cannot be empty after sanitization")
         return cleaned

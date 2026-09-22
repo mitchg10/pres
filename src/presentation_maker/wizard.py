@@ -13,8 +13,8 @@ from presentation_maker.models import (
     PresentationConfig,
     SlideCount,
     SlideType,
+    safe_slug,
 )
-from presentation_maker.templates import slug_from_title
 
 console = Console()
 
@@ -79,7 +79,7 @@ def _prompt_date() -> date:
 
 
 def _prompt_slug(title: str) -> str:
-    default = slug_from_title(title)
+    default = safe_slug(title)
     while True:
         slug = questionary.text("Folder name (slug):", default=default).ask()
         if not generator.presentation_exists(slug):

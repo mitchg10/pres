@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import re
 from textwrap import dedent
 
 from presentation_maker.models import (
@@ -22,10 +21,6 @@ _PARTIAL_FILENAMES: dict[PartialType, str] = {
 _PARTIAL_PATHS: dict[PartialType, str] = {
     p: f"partials/{name}" for p, name in _PARTIAL_FILENAMES.items()
 }
-
-
-def slug_from_title(title: str) -> str:
-    return re.sub(r"[^a-z0-9-]+", "-", title.lower().strip()).strip("-")
 
 
 def render_quarto_yml(config: PresentationConfig) -> str:

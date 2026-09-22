@@ -31,3 +31,8 @@ jobs:
 
       - name: Verify CLI
         run: uv run pres --help
+
+      # The browser-backed tests need a real deck, and /presentations/ is gitignored,
+      # so they stay excluded here. Everything the parser and the checks rest on runs.
+      - name: Run tests
+        run: uv run pytest -m "not slow"

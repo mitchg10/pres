@@ -12,15 +12,23 @@ Copilot — should read it before editing slides.
 ## The loop
 
 1. **Edit** the source (`presentations/<slug>/index.qmd`, a partial, or the shared styling).
-2. **Capture** it:
+2. **Check it** — sub-second, no render, no browser:
+   ```bash
+   uv run pres check <slug>
+   ```
+   This catches the problems that survive a successful build: duplicate slide ids,
+   image paths that point at nothing, includes that resolve nowhere. Fix these first;
+   a capture of a deck with a duplicate id may not even be the slide you asked for.
+3. **Capture** it:
    ```bash
    uv run pres shot <slug> --slide <n>
    ```
-3. **Open the PNG it wrote** and actually look at it. This step is the entire point — a
+4. **Open the PNG it wrote** and actually look at it. This step is the entire point — a
    capture you never view tells you nothing. The command prints the output paths.
-4. **Read `capture-report.md`** in the same directory. It lists content that overflowed a
-   slide, console errors, and failed requests — problems that are easy to miss in an image.
-5. Iterate until it looks right.
+5. **Read `capture-report.md`** in the same directory. It lists content that overflowed a
+   slide, console errors, failed requests, and the source problems from step 2 — all
+   things that are easy to miss in an image.
+6. Iterate until it looks right.
 
 Output lands in `build/shots/<slug>/` (gitignored) unless you pass `--out`.
 
@@ -31,6 +39,9 @@ Output lands in `build/shots/<slug>/` (gitignored) unless you pass `--out`.
 | Command | What it does |
 |---|---|
 | `uv run pres list` | Slugs of every presentation |
+| `uv run pres check` | Static checks over every deck's source |
+| `uv run pres check <slug>` | Check one deck |
+| `uv run pres check <slug> --json` | Slide list plus diagnostics, machine-readable |
 | `uv run pres shot <slug>` | Capture every slide |
 | `uv run pres shot <slug> --slide 4` | One slide, by zero-based index |
 | `uv run pres shot <slug> --slide the-failure-categories` | One slide, by id |
@@ -81,6 +92,9 @@ capture separate; `--no-render` to skip the rebuild; `--json` for machine-readab
 - **Slides are `##` headings** in `presentations/<slug>/index.qmd`. Each becomes one slide.
 - **Slide ids** are slugs of those headings (`## The Failure Categories` →
   `the-failure-categories`). Prefer ids over indices in `--slide`: they survive slide reordering.
+- **`pres check` reads the source, `pres shot` reads the render.** They catch disjoint
+  problems and neither replaces the other: a broken image path builds cleanly and only
+  `check` sees it; a card whose text overflows parses cleanly and only `shot` sees it.
 - **Slide indices are zero-based** — the title slide is `0`. This matches the `#/N` URL hash,
   because the decks are generated with `hashOneBasedIndex: false`. Note the on-screen slide
   counter is one-based, so slide `5` displays as "6 / 9".
@@ -91,6 +105,24 @@ capture separate; `--no-render` to skip the rebuild; `--json` for machine-readab
 - **Shared sections** are in `partials/` and pulled in with `{{< include partials/_agenda.qmd >}}`.
 - **Posters** are `format: html`, `self-contained: true`, laid out with `.poster-grid` /
   `.poster-cell`, themed by `styles/poster.scss` and `styles/poster_elements.scss`.
+
+---
+
+## Consulting other decks
+
+The finished decks are the house pattern library. Before designing a layout, card, or
+animation from scratch, check whether another deck already solved it:
+
+```bash
+uv run python .agents/skills/reference-decks/scripts/deck-index.py                 # index all decks
+uv run python .agents/skills/reference-decks/scripts/deck-index.py --pattern gsap  # who does X
+uv run python .agents/skills/reference-decks/scripts/deck-index.py --deck <slug>   # slide ids, classes
+```
+
+Then capture the reference deck (`pres shot <slug> --contact-sheet`) and read the image.
+When borrowing markup, remember: classes from the shared `styles/components.scss` work
+everywhere; classes defined in a deck's own `styles.scss` must be copied along with the
+markup. The full workflow lives in `.agents/skills/reference-decks/SKILL.md`.
 
 ---
 
@@ -118,6 +150,12 @@ capture separate; `--no-render` to skip the rebuild; `--json` for machine-readab
   preview is already running, `--url http://localhost:4200/...` will capture from it.
 - **A plain `--slide` capture shows the slide with every fragment revealed**, so you see all of
   its content at once. Use `--fragments` to see the intermediate states.
+- **Two headings with the same text silently collide.** Pandoc appends `-1` to the second
+  one's id, so `--slide <id>` captures the *first* — often a section divider rather than
+  the content slide you meant. `pres check` reports this as `slide-id-duplicate`.
+- **`pres check` exits 1 for problems found and 2 for "could not run"**, matching ruff and
+  eslint rather than the rest of this CLI, where 1 means failure. That is deliberate: a
+  script has to be able to tell a bad deck from a broken checker.
 
 ---
 
@@ -127,3 +165,9 @@ capture separate; `--no-render` to skip the rebuild; `--json` for machine-readab
 uv run pytest -m "not slow"   # fast unit tests
 uv run pytest                 # includes browser-backed integration tests
 ```
+
+The parser behind `pres check` is held to one standard above all: for every deck on the
+machine, the slide ids it reads from source must equal the `<section id=...>` list in
+that deck's rendered `index.html`, exactly. `tests/test_deck_golden.py` asserts it and
+skips when `presentations/` is absent, since that directory is gitignored. If you change
+`deck/identifiers.py` or `deck/parser.py`, run the suite somewhere the decks exist.

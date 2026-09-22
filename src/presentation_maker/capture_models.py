@@ -7,6 +7,8 @@ from typing import Annotated
 
 from pydantic import BaseModel, Field
 
+from presentation_maker.deck.checks import Diagnostic
+
 # The deck is authored at 1920x1080 (see templates.render_quarto_yml), but reveal
 # scales its content to whatever viewport it is given, so a smaller viewport is
 # still a faithful picture of the layout — just a cheaper image for an agent to
@@ -65,7 +67,19 @@ class CaptureResult(BaseModel):
     console_errors: list[str] = Field(default_factory=list)
     failed_requests: list[str] = Field(default_factory=list)
     overflow: list[str] = Field(default_factory=list)
+    source_diagnostics: list[Diagnostic] = Field(default_factory=list)
+    """Problems `pres check` found in the source, collected before the render.
+
+    Carried here so they reach `capture-report.md`, which agents already read. A
+    broken slide id is far cheaper to notice next to the screenshots than after
+    a `--slide` capture has silently shot the wrong slide.
+    """
 
     @property
     def has_warnings(self) -> bool:
-        return bool(self.console_errors or self.failed_requests or self.overflow)
+        return bool(
+            self.console_errors
+            or self.failed_requests
+            or self.overflow
+            or self.source_diagnostics
+        )
