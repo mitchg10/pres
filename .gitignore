@@ -61,6 +61,7 @@ htmlcov/
 
 # User-specific presentations
 /presentations/
+/posters/
 
 # MACOS specific
 .DS_Store

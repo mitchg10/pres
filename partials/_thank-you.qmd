@@ -7,6 +7,8 @@ Questions?
 ::: {.smaller}
 **Mitch Gerhardt**
 
+<i class="fa-solid fa-link"></i> [mitchgerhardt.com](https://mitchgerhardt.com)
+
 <i class="fa-solid fa-envelope"></i> [mitchg\@vt.edu](mailto:mitchg@vt.edu)
 
 <i class="fa-brands fa-github"></i> [github.com/mitchg10](https://github.com/mitchg10)
